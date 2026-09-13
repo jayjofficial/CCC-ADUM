@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Calvary Charismatic Center · Check-In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1E2A38;
+    --parchment: #F6F1E7;
+    --parchment-deep: #EFE7D6;
+    --gold: #C89B3C;
+    --gold-deep: #A67F2C;
+    --sage: #5F8465;
+    --sage-deep: #4C6B52;
+    --rule: #D8CFBC;
+    --error: #B5533C;
+    --font-head: "Fraunces", Georgia, serif;
+    --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-family: var(--font-body);
+    color: var(--ink);
+  }
+
+  .stage {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--parchment);
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    padding: 36px 28px;
+    position: relative;
+  }
+
+  .mark {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 14px;
+    border: 1.5px solid var(--gold-deep);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-size: 14px;
+    color: var(--gold-deep);
+  }
+
+  .church-name {
+    text-align: center;
+    font-family: var(--font-head);
+    font-size: 15px;
+    color: var(--ink);
+    margin: 0 0 2px;
+  }
+
+  .church-location {
+    text-align: center;
+    font-size: 12px;
+    color: #9A8E76;
+    margin: 0 0 16px;
+  }
+
+  .service-line {
+    text-align: center;
+    font-size: 13px;
+    color: #7A6F5C;
+    margin-bottom: 4px;
+    letter-spacing: 0.01em;
+  }
+
+  h1 {
+    font-family: var(--font-head);
+    font-weight: 500;
+    font-size: 26px;
+    line-height: 1.25;
+    text-align: center;
+    margin: 0 0 6px;
+  }
+
+  .sub {
+    text-align: center;
+    font-size: 14.5px;
+    color: #6A6153;
+    line-height: 1.5;
+    margin: 0 0 26px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    color: #6A6153;
+    margin-bottom: 6px;
+  }
+
+  input[type="tel"], input[type="text"] {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 17px;
+    padding: 13px 14px;
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--ink);
+    margin-bottom: 16px;
+    outline: none;
+  }
+  input[type="tel"]:focus, input[type="text"]:focus {
+    border-color: var(--gold-deep);
+  }
+
+  .btn {
+    width: 100%;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.08s ease;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:disabled { cursor: default; opacity: 0.75; }
+
+  .btn-primary {
+    background: var(--gold-deep);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) { background: #8f6d26; }
+
+  .btn-checked {
+    background: var(--sage);
+    color: #fff;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: #6A6153;
+    text-decoration: underline;
+    font-weight: 500;
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .error-text {
+    color: var(--error);
+    font-size: 13.5px;
+    margin: -8px 0 14px;
+  }
+
+  .profile-box {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .profile-name {
+    font-family: var(--font-head);
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0 0 4px;
+  }
+  .profile-meta {
+    font-size: 14px;
+    color: #7A6F5C;
+  }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 22px 0;
+  }
+
+  .foot-link {
+    text-align: center;
+    margin-top: 18px;
+  }
+  .foot-link button {
+    background: none;
+    border: none;
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    color: #A69B85;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .checked-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.5;
+    gap: 8px;
+    background: #EDF3EC;
+    color: var(--sage-deep);
+    border-radius: 10px;
+    padding: 18px;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  /* Admin */
+  .admin-card { max-width: 460px; }
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+  .admin-count {
+    font-family: var(--font-head);
+    font-size: 34px;
+  }
+  .admin-list {
+    max-height: 220px;
+    overflow-y: auto;
+    margin: 14px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .admin-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--rule);
+    font-size: 14px;
+  }
+  .admin-row .name { font-weight: 500; }
+  .admin-row .time { color: #8A806E; font-size: 13px; }
+  .admin-empty {
+    text-align: center;
+    color: #8A806E;
+    font-size: 14px;
+    padding: 24px 0;
+  }
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--rule);
+    background: #fff;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #6A6153;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
+  }
+
+  .spinner-text {
+    text-align: center;
+    color: #8A806E;
+    font-size: 14px;
+    padding: 20px 0;
+  }
+</style>
+</head>
+<body>
+<div class="stage"><div id="root"></div></div>
+
+<script>
+(function () {
+  const root = document.getElementById('root');
+  const CHURCH_NAME = 'Calvary Charismatic Center';
+  const CHURCH_LOCATION = 'Adum';
+  let state = {
+    screen: 'loading', phoneInput: '', error: '', regName: '', regMinistry: '',
+    members: [], checkins: {}, adminTab: 'today',
+    adminName: '', adminPhone: '', adminMinistry: '',
+    memberSearch: '', editingPhone: null, editName: '', editPhone: '', editMinistry: '',
+    pin: '1234', pinInput: '', pinError: '', changingPin: false, currentPinInput: '', newPinInput: ''
+  };
+
+  function churchMark() {
+    return `<div class="mark">CCC</div>`;
+  }
+
+  function churchHeading() {
+    return `<p class="church-name">${esc(CHURCH_NAME)}</p><p class="church-location">${esc(CHURCH_LOCATION)}</p>`;
+  }
+
+  function todayKey() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function todayLabel() {
+    return new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  }
+
+  function normalizePhone(p) {
+    return (p || '').replace(/\D/g, '');
+  }
+
+  function timeNow() {
+    return new Date().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  }
+
+  async function loadMembers() {
+    try {
+      const res = await window.storage.get('members', true);
+      return res && res.value ? JSON.parse(res.value) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  async function saveMembers(list) {
+    const res = await window.storage.set('members', JSON.stringify(list), true);
+    if (!res) throw new Error('save-failed');
+  }
+
+  async function loadCheckins(dateKey) {
+    try {
+      const res = await window.storage.get('checkins:' + dateKey, true);
+      return res && res.value ? JSON.parse(res.value) : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  async function loadPin() {
+    try {
+      const res = await window.storage.get('admin-pin', true);
+      if (res && res.value) return res.value;
+    } catch (e) {}
+    await window.storage.set('admin-pin', '1234', true);
+    return '1234';
+  }
+
+  async function savePin(pin) {
+    const res = await window.storage.set('admin-pin', pin, true);
+    if (!res) throw new Error('save-failed');
+  }
+
+  async function saveCheckins(dateKey, obj) {
+    const res = await window.storage.set('checkins:' + dateKey, JSON.stringify(obj), true);
+    if (!res) throw new Error('save-failed');
+  }
+
+  async function init() {
+    state.members = await loadMembers();
+    state.checkins = await loadCheckins(todayKey());
+    state.pin = await loadPin();
+    state.screen = 'entry';
+    render();
+  }
+
+  function setState(patch) {
+    state = Object.assign({}, state, patch);
+    render();
+  }
+
+  async function handleLookup() {
+    const digits = normalizePhone(state.phoneInput);
+    if (digits.length < 7) {
+      setState({ error: 'Enter a valid phone number.' });
+      return;
+    }
+    const match = state.members.find(m => normalizePhone(m.phone) === digits);
+    if (match) {
+      setState({ screen: 'profile', error: '', currentMember: match });
+    } else {
+      setState({ screen: 'register', error: '', regName: '', regMinistry: '' });
+    }
+  }
+
+  async function handleRegister() {
+    const digits = normalizePhone(state.phoneInput);
+    if (!state.regName.trim()) {
+      setState({ error: 'Enter your name.' });
+      return;
+    }
+    const member = { phone: digits, name: state.regName.trim(), ministry: state.regMinistry.trim() };
+    const updatedMembers = state.members.concat([member]);
+    const dateKey = todayKey();
+    const updatedCheckins = Object.assign({}, state.checkins);
+    updatedCheckins[digits] = { name: member.name, ministry: member.ministry || '', time: timeNow() };
+    setState({ screen: 'loading' });
+    try {
+      await saveMembers(updatedMembers);
+      await saveCheckins(dateKey, updatedCheckins);
+      setState({ members: updatedMembers, checkins: updatedCheckins, screen: 'profile', currentMember: member, error: '' });
+    } catch (e) {
+      setState({ screen: 'register', error: "Couldn't save — check your connection and try again." });
+    }
+  }
+
+  async function handleCheckIn() {
+    const m = state.currentMember;
+    const digits = normalizePhone(m.phone);
+    const dateKey = todayKey();
+    const updated = Object.assign({}, state.checkins);
+    updated[digits] = { name: m.name, ministry: m.ministry || '', time: timeNow() };
+    try {
+      await saveCheckins(dateKey, updated);
+      setState({ checkins: updated, error: '' });
+    } catch (e) {
+      setState({ error: "Couldn't save your check-in — check your connection and try again." });
+    }
+  }
+
+  function goHome() {
+    setState({ screen: 'entry', phoneInput: '', error: '', currentMember: null });
+  }
+
+  async function handleAdminAdd() {
+    const digits = normalizePhone(state.adminPhone);
+    if (!state.adminName.trim() || digits.length < 7) {
+      setState({ error: 'Enter a name and valid phone number.' });
+      return;
+    }
+    const updated = state.members.concat([{ phone: digits, name: state.adminName.trim(), ministry: state.adminMinistry.trim() }]);
+    try {
+      await saveMembers(updated);
+      setState({ members: updated, adminName: '', adminPhone: '', adminMinistry: '', error: '' });
+    } catch (e) {
+      setState({ error: "Couldn't save — check your connection and try again." });
+    }
+  }
+
+  async function refreshAdminData() {
+    const [members, checkins] = await Promise.all([loadMembers(), loadCheckins(todayKey())]);
+    setState({ members, checkins });
+  }
+
+  async function handlePinSubmit() {
+    if (state.pinInput === state.pin) {
+      setState({ screen: 'loading' });
+      await refreshAdminData();
+      setState({ screen: 'admin', pinInput: '', pinError: '', error: '' });
+    } else {
+      setState({ pinError: 'Incorrect PIN.', pinInput: '' });
+    }
+  }
+
+  async function handleChangePin() {
+    if (state.currentPinInput !== state.pin) {
+      setState({ error: 'Current PIN is incorrect.' });
+      return;
+    }
+    if (!/^\d{4,8}$/.test(state.newPinInput)) {
+      setState({ error: 'New PIN must be 4-8 digits.' });
+      return;
+    }
+    try {
+      await savePin(state.newPinInput);
+      setState({ pin: state.newPinInput, changingPin: false, currentPinInput: '', newPinInput: '', error: '' });
+    } catch (e) {
+      setState({ error: "Couldn't save the new PIN — check your connection and try again." });
+    }
+  }
+
+  function startEditMember(digits) {
+    const m = state.members.find(mm => normalizePhone(mm.phone) === digits);
+    if (!m) return;
+    setState({ editingPhone: digits, editName: m.name, editPhone: m.phone, editMinistry: m.ministry || '', error: '' });
+  }
+
+  async function saveEditMember(originalDigits) {
+    const newDigits = normalizePhone(state.editPhone);
+    if (!state.editName.trim() || newDigits.length < 7) {
+      setState({ error: 'Enter a name and valid phone number.' });
+      return;
+    }
+    const updated = state.members.map(m =>
+      normalizePhone(m.phone) === originalDigits
+        ? { phone: newDigits, name: state.editName.trim(), ministry: state.editMinistry.trim() }
+        : m
+    );
+    try {
+      await saveMembers(updated);
+      setState({ members: updated, editingPhone: null, error: '' });
+    } catch (e) {
+      setState({ error: "Couldn't save — check your connection and try again." });
+    }
+  }
+
+  async function handleDeleteMember(digits) {
+    if (!window.confirm('Remove this member from the list?')) return;
+    const updated = state.members.filter(m => normalizePhone(m.phone) !== digits);
+    try {
+      await saveMembers(updated);
+      setState({ members: updated, error: '' });
+    } catch (e) {
+      setState({ error: "Couldn't delete — check your connection and try again." });
+    }
+  }
+
+  function downloadCSV(filename, rows) {
+    const csv = rows.map(r => r.map(cell => '"' + String(cell == null ? '' : cell).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportMembersCSV() {
+    const rows = [['Name', 'Phone', 'Ministry']].concat(state.members.map(m => [m.name, m.phone, m.ministry || '']));
+    downloadCSV('calvary-adum-members.csv', rows);
+  }
+
+  function exportCheckinsCSV() {
+    const rows = [['Name', 'Phone', 'Ministry', 'Time']].concat(
+      Object.entries(state.checkins).map(([phone, r]) => [r.name, phone, r.ministry || '', r.time])
+    );
+    downloadCSV('calvary-adum-checkins-' + todayKey() + '.csv', rows);
+  }
+
+  function esc(s) {
+    const d = document.createElement('div');
+    d.innerText = s == null ? '' : s;
+    return d.innerHTML;
+  }
+
+  function captureFocus() {
+    const el = document.activeElement;
+    if (!el || !root.contains(el) || !el.id) return null;
+    return { id: el.id, start: el.selectionStart, end: el.selectionEnd };
+  }
+
+  function restoreFocus(info) {
+    if (!info) return;
+    const el = document.getElementById(info.id);
+    if (!el) return;
+    el.focus();
+    if (typeof info.start === 'number' && el.setSelectionRange) {
+      try { el.setSelectionRange(info.start, info.end); } catch (e) {}
+    }
+  }
+
+  function render() {
+    const focusInfo = captureFocus();
+    paint();
+    restoreFocus(focusInfo);
+  }
+
+  function paint() {
+    if (state.screen === 'loading') {
+      root.innerHTML = '<div class="card"><div class="spinner-text">Loading…</div></div>';
+      return;
+    }
+
+    if (state.screen === 'entry') {
+      root.innerHTML = `
+        <div class="card">
+          ${churchMark()}
+          ${churchHeading()}
+          <div class="service-line">${esc(todayLabel())}</div>
+          <h1>Welcome. Let's check you in.</h1>
+          <p class="sub">Enter the phone number on file with the church.</p>
+          <label for="phone">Phone number</label>
+          <input id="phone" type="tel" inputmode="tel" placeholder="(555) 123-4567" value="${esc(state.phoneInput)}">
+          ${state.error ? `<div class="error-text">${esc(state.error)}</div>` : ''}
+          <button class="btn btn-primary" id="continueBtn">Continue</button>
+          <div class="foot-link"><button id="adminLink">Staff view</button></div>
+        </div>`;
+      document.getElementById('phone').addEventListener('input', e => setState({ phoneInput: e.target.value, error: '' }));
+      document.getElementById('phone').addEventListener('keydown', e => { if (e.key === 'Enter') handleLookup(); });
+      document.getElementById('continueBtn').addEventListener('click', handleLookup);
+      document.getElementById('adminLink').addEventListener('click', () => setState({ screen: 'pinEntry', pinInput: '', pinError: '' }));
+      document.getElementById('phone').focus();
+      return;
+    }
+
+    if (state.screen === 'register') {
+      root.innerHTML = `
+        <div class="card">
+          ${churchMark()}
+          <h1>We don't have that number yet</h1>
+          <p class="sub">Add your name so we can check you in today and remember you next time.</p>
+          <label for="regName">Full name</label>
+          <input id="regName" type="text" placeholder="Jane Mensah" value="${esc(state.regName)}">
+          <label for="regMinistry">Ministry or group (optional)</label>
+          <input id="regMinistry" type="text" placeholder="Choir, Youth, Ushering…" value="${esc(state.regMinistry)}">
+          ${state.error ? `<div class="error-text">${esc(state.error)}</div>` : ''}
+          <button class="btn btn-primary" id="registerBtn">Save and continue</button>
+          <div class="foot-link"><button id="backBtn">Not your number? Start over</button></div>
+        </div>`;
+      document.getElementById('regName').addEventListener('input', e => setState({ regName: e.target.value, error: '' }));
+      document.getElementById('regMinistry').addEventListener('input', e => setState({ regMinistry: e.target.value }));
+      document.getElementById('registerBtn').addEventListener('click', handleRegister);
+      document.getElementById('backBtn').addEventListener('click', goHome);
+      return;
+    }
+
+    if (state.screen === 'profile') {
+      const m = state.currentMember;
+      const digits = normalizePhone(m.phone);
+      const record = state.checkins[digits];
+      root.innerHTML = `
+        <div class="card">
+          ${churchMark()}
+          <div class="service-line">${esc(todayLabel())}</div>
+          <div class="profile-box">
+            <p class="profile-name">${esc(m.name)}</p>
+            ${m.ministry ? `<p class="profile-meta">${esc(m.ministry)}</p>` : ''}
+          </div>
+          ${record
+            ? `<div class="checked-badge"><span>Hi ${esc(m.name.split(' ')[0])}, you are welcome to Transformation Centre. Stay blessed.</span></div>
+               <p class="profile-meta" style="text-align:center; margin-top:10px;">Checked in at ${esc(record.time)}</p>`
+            : `<button class="btn btn-primary" id="checkInBtn">Check in</button>`
+          }
+          ${state.error ? `<div class="error-text" style="text-align:center;">${esc(state.error)}</div>` : ''}
+          <div class="foot-link"><button id="backBtn">Not you? Start over</button></div>
+        </div>`;
+      if (!record) {
+        document.getElementById('checkInBtn').addEventListener('click', handleCheckIn);
+      }
+      document.getElementById('backBtn').addEventListener('click', goHome);
+      return;
+    }
+
+    if (state.screen === 'pinEntry') {
+      root.innerHTML = `
+        <div class="card">
+          ${churchMark()}
+          <h1>Staff view</h1>
+          <p class="sub">Enter the staff PIN to manage members and check-ins.</p>
+          <label for="pinField">PIN</label>
+          <input id="pinField" type="tel" inputmode="numeric" placeholder="••••" value="${esc(state.pinInput)}">
+          ${state.pinError ? `<div class="error-text">${esc(state.pinError)}</div>` : ''}
+          <button class="btn btn-primary" id="pinSubmitBtn">Enter</button>
+          <div class="foot-link"><button id="pinBackBtn">Back to check-in</button></div>
+        </div>`;
+      const pinField = document.getElementById('pinField');
+      pinField.addEventListener('input', e => setState({ pinInput: e.target.value, pinError: '' }));
+      pinField.addEventListener('keydown', e => { if (e.key === 'Enter') handlePinSubmit(); });
+      document.getElementById('pinSubmitBtn').addEventListener('click', handlePinSubmit);
+      document.getElementById('pinBackBtn').addEventListener('click', goHome);
+      pinField.focus();
+      return;
+    }
+
+    if (state.screen === 'admin') {
+      const rows = Object.entries(state.checkins);
+      const query = state.memberSearch.trim().toLowerCase();
+      const filteredMembers = state.members.filter(m =>
+        !query || m.name.toLowerCase().includes(query) || normalizePhone(m.phone).includes(query)
+      );
+      root.innerHTML = `
+        <div class="card admin-card">
+          <div class="admin-header">
+            <div>
+              <p class="church-name" style="text-align:left; margin-bottom:0;">${esc(CHURCH_NAME)} · ${esc(CHURCH_LOCATION)}</p>
+              <div class="service-line" style="text-align:left">${esc(todayLabel())}</div>
+              <h1 style="text-align:left; margin-bottom:0;">${state.adminTab === 'members' ? 'Members' : "Today's check-ins"}</h1>
+            </div>
+            <div class="admin-count">${state.adminTab === 'members' ? state.members.length : rows.length}</div>
+          </div>
+          <div class="tab-row" style="margin-top:18px;">
+            <button class="tab-btn ${state.adminTab === 'today' ? 'active' : ''}" id="tabToday">Check-in list</button>
+            <button class="tab-btn ${state.adminTab === 'members' ? 'active' : ''}" id="tabMembers">Members</button>
+          </div>
+          <div class="foot-link" style="margin-top:-8px; margin-bottom:14px;"><button id="refreshBtn">Refresh data</button></div>
+          ${state.adminTab === 'today' ? `
+            <div class="admin-list">
+              ${rows.length === 0
+                ? `<div class="admin-empty">No one has checked in yet.</div>`
+                : rows.map(([phone, r]) => `
+                  <div class="admin-row">
+                    <span class="name">${esc(r.name)}${r.ministry ? ' · ' + esc(r.ministry) : ''}</span>
+                    <span class="time">${esc(r.time)}</span>
+                  </div>`).join('')
+              }
+            </div>
+            <button class="btn btn-primary" id="exportCheckinsBtn" style="margin-top:6px;">Export today's list (CSV)</button>
+          ` : `
+            <label for="aName">Full name</label>
+            <input id="aName" type="text" value="${esc(state.adminName)}">
+            <label for="aPhone">Phone number</label>
+            <input id="aPhone" type="tel" value="${esc(state.adminPhone)}">
+            <label for="aMinistry">Ministry or group (optional)</label>
+            <input id="aMinistry" type="text" value="${esc(state.adminMinistry)}">
+            ${state.error ? `<div class="error-text">${esc(state.error)}</div>` : ''}
+            <button class="btn btn-primary" id="addMemberBtn">Add to member list</button>
+            <hr class="divider">
+            <label for="memberSearch">Search members</label>
+            <input id="memberSearch" type="text" placeholder="Search by name or phone" value="${esc(state.memberSearch)}">
+            <div class="admin-list">
+              ${filteredMembers.length === 0
+                ? `<div class="admin-empty">No members found.</div>`
+                : filteredMembers.map(m => {
+                    const digits = normalizePhone(m.phone);
+                    const isEditing = state.editingPhone === digits;
+                    if (isEditing) {
+                      return `
+                        <div class="admin-row" style="flex-direction:column; align-items:stretch; gap:8px; padding:12px 0;">
+                          <input class="edit-name" data-phone="${esc(digits)}" type="text" value="${esc(state.editName)}" style="margin-bottom:0;">
+                          <input class="edit-phone" data-phone="${esc(digits)}" type="tel" value="${esc(state.editPhone)}" style="margin-bottom:0;">
+                          <input class="edit-ministry" data-phone="${esc(digits)}" type="text" value="${esc(state.editMinistry)}" placeholder="Ministry or group" style="margin-bottom:0;">
+                          <div style="display:flex; gap:8px;">
+                            <button class="btn btn-primary save-edit-btn" data-phone="${esc(digits)}" style="font-size:13px; padding:9px;">Save</button>
+                            <button class="btn btn-ghost cancel-edit-btn" style="width:auto; flex:1;">Cancel</button>
+                          </div>
+                        </div>`;
+                    }
+                    return `
+                      <div class="admin-row">
+                        <span class="name">${esc(m.name)}${m.ministry ? ' · ' + esc(m.ministry) : ''}<br><span class="time">${esc(m.phone)}</span></span>
+                        <span style="display:flex; gap:12px; align-items:center;">
+                          <button class="btn-ghost edit-member-btn" data-phone="${esc(digits)}" style="padding:0;">Edit</button>
+                          <button class="btn-ghost delete-member-btn" data-phone="${esc(digits)}" style="padding:0; color:var(--error);">Delete</button>
+                        </span>
+                      </div>`;
+                  }).join('')
+              }
+            </div>
+            <button class="btn btn-primary" id="exportMembersBtn" style="margin-top:6px;">Export members (CSV)</button>
+          `}
+          <hr class="divider">
+          ${state.changingPin ? `
+            <label for="currentPin">Current PIN</label>
+            <input id="currentPin" type="tel" inputmode="numeric" value="${esc(state.currentPinInput)}">
+            <label for="newPin">New PIN (4-8 digits)</label>
+            <input id="newPin" type="tel" inputmode="numeric" value="${esc(state.newPinInput)}">
+            ${state.error ? `<div class="error-text">${esc(state.error)}</div>` : ''}
+            <button class="btn btn-primary" id="savePinBtn">Save new PIN</button>
+            <div class="foot-link"><button id="cancelPinBtn">Cancel</button></div>
+          ` : `
+            <div class="foot-link">
+              <button id="changePinBtn">Change staff PIN</button>
+              &nbsp;·&nbsp;
+              <button id="exitAdmin">Back to check-in</button>
+            </div>
+          `}
+        </div>`;
+      document.getElementById('tabToday').addEventListener('click', () => setState({ adminTab: 'today', error: '' }));
+      document.getElementById('tabMembers').addEventListener('click', () => setState({ adminTab: 'members', error: '', editingPhone: null }));
+      document.getElementById('refreshBtn').addEventListener('click', refreshAdminData);
+      if (state.changingPin) {
+        document.getElementById('currentPin').addEventListener('input', e => setState({ currentPinInput: e.target.value, error: '' }));
+        document.getElementById('newPin').addEventListener('input', e => setState({ newPinInput: e.target.value, error: '' }));
+        document.getElementById('savePinBtn').addEventListener('click', handleChangePin);
+        document.getElementById('cancelPinBtn').addEventListener('click', () => setState({ changingPin: false, currentPinInput: '', newPinInput: '', error: '' }));
+      } else {
+        document.getElementById('changePinBtn').addEventListener('click', () => setState({ changingPin: true, error: '' }));
+        document.getElementById('exitAdmin').addEventListener('click', goHome);
+      }
+      if (state.adminTab === 'today') {
+        document.getElementById('exportCheckinsBtn').addEventListener('click', exportCheckinsCSV);
+      }
+      if (state.adminTab === 'members') {
+        document.getElementById('aName').addEventListener('input', e => setState({ adminName: e.target.value, error: '' }));
+        document.getElementById('aPhone').addEventListener('input', e => setState({ adminPhone: e.target.value, error: '' }));
+        document.getElementById('aMinistry').addEventListener('input', e => setState({ adminMinistry: e.target.value }));
+        document.getElementById('addMemberBtn').addEventListener('click', handleAdminAdd);
+        document.getElementById('memberSearch').addEventListener('input', e => setState({ memberSearch: e.target.value }));
+        document.getElementById('exportMembersBtn').addEventListener('click', exportMembersCSV);
+        document.querySelectorAll('.edit-member-btn').forEach(btn => btn.addEventListener('click', () => startEditMember(btn.dataset.phone)));
+        document.querySelectorAll('.delete-member-btn').forEach(btn => btn.addEventListener('click', () => handleDeleteMember(btn.dataset.phone)));
+        document.querySelectorAll('.edit-name').forEach(el => el.addEventListener('input', e => setState({ editName: e.target.value })));
+        document.querySelectorAll('.edit-phone').forEach(el => el.addEventListener('input', e => setState({ editPhone: e.target.value })));
+        document.querySelectorAll('.edit-ministry').forEach(el => el.addEventListener('input', e => setState({ editMinistry: e.target.value })));
+        document.querySelectorAll('.save-edit-btn').forEach(btn => btn.addEventListener('click', () => saveEditMember(btn.dataset.phone)));
+        document.querySelectorAll('.cancel-edit-btn').forEach(btn => btn.addEventListener('click', () => setState({ editingPhone: null })));
+      }
+      return;
+    }
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
