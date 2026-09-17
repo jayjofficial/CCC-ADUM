@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 210" width="100%" height="100%">
+  <defs>
+    <!-- Cross gradient -->
+    <linearGradient id="crossGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7B2CBF"/>
+      <stop offset="50%" stop-color="#5A189A"/>
+      <stop offset="100%" stop-color="#3C096C"/>
+    </linearGradient>
+
+    <!-- Sunburst gold rays gradient -->
+    <radialGradient id="sunburst" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE066" stop-opacity="1"/>
+      <stop offset="70%" stop-color="#F59E0B" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#D97706" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Globe gradients -->
+    <radialGradient id="globeOcean" cx="40%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#60A5FA"/>
+      <stop offset="50%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </radialGradient>
+
+    <linearGradient id="goldRibbon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="50%" stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+
+    <filter id="subtleShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Sunburst rays behind the cross center -->
+  <g transform="translate(80, 52)" opacity="0.95">
+    <circle r="44" fill="url(#sunburst)"/>
+    <!-- Individual rays -->
+    <g stroke="#F59E0B" stroke-width="1.8" stroke-linecap="round" opacity="0.85">
+      <line x1="0" y1="-44" x2="0" y2="-28"/>
+      <line x1="31" y1="-31" x2="20" y2="-20"/>
+      <line x1="44" y1="0" x2="28" y2="0"/>
+      <line x1="31" y1="31" x2="20" y2="20"/>
+      <line x1="0" y1="44" x2="0" y2="28"/>
+      <line x1="-31" y1="31" x2="-20" y2="20"/>
+      <line x1="-44" y1="0" x2="-28" y2="0"/>
+      <line x1="-31" y1="-31" x2="-20" y2="-20"/>
+
+      <line x1="17" y1="-40" x2="11" y2="-26"/>
+      <line x1="40" y1="-17" x2="26" y2="-11"/>
+      <line x1="40" y1="17" x2="26" y2="11"/>
+      <line x1="17" y1="40" x2="11" y2="26"/>
+      <line x1="-17" y1="40" x2="-11" y2="26"/>
+      <line x1="-40" y1="17" x2="-26" y2="11"/>
+      <line x1="-40" y1="-17" x2="-26" y2="-11"/>
+      <line x1="-17" y1="-40" x2="-11" y2="-26"/>
+    </g>
+  </g>
+
+  <!-- The Latin Cross -->
+  <g filter="url(#subtleShadow)">
+    <!-- Main Cross Body -->
+    <path d="M 70 10 
+             L 90 10 
+             L 90 42 
+             L 122 42 
+             L 122 62 
+             L 90 62 
+             L 90 148 
+             L 70 148 
+             L 70 62 
+             L 38 62 
+             L 38 42 
+             L 70 42 Z" 
+          fill="url(#crossGrad)" 
+          stroke="#4A154B" 
+          stroke-width="1"/>
+
+    <!-- Inner White Inset Highlight Line -->
+    <path d="M 74 14 
+             L 86 14 
+             L 86 46 
+             L 118 46 
+             L 118 58 
+             L 86 58 
+             L 86 144 
+             L 74 144 
+             L 74 58 
+             L 42 58 
+             L 42 46 
+             L 74 46 Z" 
+          fill="none" 
+          stroke="#FFFFFF" 
+          stroke-width="1.6" 
+          opacity="0.9"/>
+  </g>
+
+  <!-- The Globe -->
+  <g transform="translate(80, 142)" filter="url(#subtleShadow)">
+    <!-- Globe Ocean -->
+    <circle r="36" fill="url(#globeOcean)" stroke="#D97706" stroke-width="1.5"/>
+
+    <!-- Continents (Africa / Europe / Atlantic approximation) -->
+    <path d="M -8 -26 
+             C 4 -28, 14 -22, 16 -12 
+             C 18 -2, 24 8, 16 22 
+             C 8 32, -4 34, -12 28 
+             C -20 22, -18 10, -10 6 
+             C -2 2, 4 -2, 2 -8 
+             C 0 -14, -12 -16, -8 -26 Z" 
+          fill="#34D399" 
+          opacity="0.9"/>
+
+    <path d="M -30 -14 
+             C -24 -24, -16 -20, -18 -8 
+             C -20 4, -28 12, -32 -2 Z" 
+          fill="#10B981" 
+          opacity="0.85"/>
+
+    <!-- Latitude / Longitude grid lines -->
+    <ellipse cx="0" cy="0" rx="36" ry="14" fill="none" stroke="#FFFFFF" stroke-width="0.75" opacity="0.4"/>
+    <ellipse cx="0" cy="0" rx="16" ry="36" fill="none" stroke="#FFFFFF" stroke-width="0.75" opacity="0.4"/>
+    <line x1="0" y1="-36" x2="0" y2="36" stroke="#FFFFFF" stroke-width="0.75" opacity="0.4"/>
+    <line x1="-36" y1="0" x2="36" y2="0" stroke="#FFFFFF" stroke-width="0.75" opacity="0.4"/>
+
+    <!-- Circular Banner / Ribbon Ring around globe -->
+    <circle r="39" fill="none" stroke="url(#goldRibbon)" stroke-width="9" filter="url(#subtleShadow)"/>
+    <circle r="43.5" fill="none" stroke="#B45309" stroke-width="0.8"/>
+    <circle r="34.5" fill="none" stroke="#B45309" stroke-width="0.8"/>
+
+    <!-- Curved Text on Banner -->
+    <path id="textArcTop" d="M -36 10 A 38 38 0 1 1 36 10" fill="none"/>
+    <text font-family="'Inter', sans-serif" font-size="6.8" font-weight="800" fill="#1E1B4B" letter-spacing="1">
+      <textPath href="#textArcTop" startOffset="50%" text-anchor="middle">
+        CALVARY CHARISMATIC CENTRE
+      </textPath>
+    </text>
+  </g>
+</svg>

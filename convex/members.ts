@@ -29,12 +29,17 @@ export const add = mutation({
   args: {
     name: v.string(),
     phone: v.string(),
+    age: v.optional(v.string()),
+    codeNo: v.optional(v.string()),
+    scdGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    memberStatus: v.optional(v.string()),
     ministry: v.optional(v.string()),
+    address: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const cleanPhone = normalizePhone(args.phone);
     const cleanName = args.name.trim();
-    const cleanMinistry = args.ministry?.trim() || "";
 
     if (!cleanPhone || cleanPhone.length < 7) {
       throw new Error("Valid phone number with at least 7 digits is required.");
@@ -43,23 +48,30 @@ export const add = mutation({
       throw new Error("Member name is required.");
     }
 
+    const payload = {
+      name: cleanName,
+      phone: cleanPhone,
+      age: args.age?.trim() || undefined,
+      codeNo: args.codeNo?.trim() || undefined,
+      scdGroup: args.scdGroup?.trim() || undefined,
+      occupation: args.occupation?.trim() || undefined,
+      memberStatus: args.memberStatus?.trim() || undefined,
+      ministry: args.ministry?.trim() || undefined,
+      address: args.address?.trim() || undefined,
+    };
+
     const existing = await ctx.db
       .query("members")
       .withIndex("by_phone", (q) => q.eq("phone", cleanPhone))
       .first();
 
     if (existing) {
-      await ctx.db.patch(existing._id, {
-        name: cleanName,
-        ministry: cleanMinistry || undefined,
-      });
+      await ctx.db.patch(existing._id, payload);
       return existing._id;
     }
 
     return await ctx.db.insert("members", {
-      phone: cleanPhone,
-      name: cleanName,
-      ministry: cleanMinistry || undefined,
+      ...payload,
       createdAt: Date.now(),
     });
   },
@@ -70,13 +82,18 @@ export const update = mutation({
     originalPhone: v.string(),
     name: v.string(),
     phone: v.string(),
+    age: v.optional(v.string()),
+    codeNo: v.optional(v.string()),
+    scdGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    memberStatus: v.optional(v.string()),
     ministry: v.optional(v.string()),
+    address: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const origClean = normalizePhone(args.originalPhone);
     const newClean = normalizePhone(args.phone);
     const cleanName = args.name.trim();
-    const cleanMinistry = args.ministry?.trim() || "";
 
     if (!newClean || newClean.length < 7) {
       throw new Error("Valid phone number is required.");
@@ -97,7 +114,13 @@ export const update = mutation({
     await ctx.db.patch(existing._id, {
       name: cleanName,
       phone: newClean,
-      ministry: cleanMinistry || undefined,
+      age: args.age?.trim() || undefined,
+      codeNo: args.codeNo?.trim() || undefined,
+      scdGroup: args.scdGroup?.trim() || undefined,
+      occupation: args.occupation?.trim() || undefined,
+      memberStatus: args.memberStatus?.trim() || undefined,
+      ministry: args.ministry?.trim() || undefined,
+      address: args.address?.trim() || undefined,
     });
 
     return existing._id;

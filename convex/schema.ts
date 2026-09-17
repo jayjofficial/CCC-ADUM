@@ -5,7 +5,13 @@ export default defineSchema({
   members: defineTable({
     phone: v.string(),
     name: v.string(),
+    age: v.optional(v.string()),
+    codeNo: v.optional(v.string()),
+    scdGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    memberStatus: v.optional(v.string()),
     ministry: v.optional(v.string()),
+    address: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_phone", ["phone"])
@@ -14,9 +20,15 @@ export default defineSchema({
   checkins: defineTable({
     phone: v.string(),
     name: v.string(),
+    age: v.optional(v.string()),
+    codeNo: v.optional(v.string()),
+    scdGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    memberStatus: v.optional(v.string()),
     ministry: v.optional(v.string()),
+    address: v.optional(v.string()),
     date: v.string(), // Format: YYYY-MM-DD
-    time: v.string(), // E.g., "10:30 AM"
+    time: v.string(), // E.g., "11:14"
     timestamp: v.number(),
   })
     .index("by_date", ["date"])

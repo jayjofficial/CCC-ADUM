@@ -76,21 +76,27 @@ export const checkIn = mutation({
       .first();
 
     if (existing) {
-      return { id: existing._id, alreadyCheckedIn: true, record: existing };
+      return { id: existing._id, alreadyCheckedIn: true, record: existing, member };
     }
 
     const timeStr = args.time || getTimeNow();
     const newId = await ctx.db.insert("checkins", {
       phone: cleanPhone,
       name: member.name,
+      age: member.age,
+      codeNo: member.codeNo,
+      scdGroup: member.scdGroup,
+      occupation: member.occupation,
+      memberStatus: member.memberStatus,
       ministry: member.ministry,
+      address: member.address,
       date: targetDate,
       time: timeStr,
       timestamp: Date.now(),
     });
 
     const record = await ctx.db.get(newId);
-    return { id: newId, alreadyCheckedIn: false, record };
+    return { id: newId, alreadyCheckedIn: false, record, member };
   },
 });
 
@@ -98,14 +104,19 @@ export const registerAndCheckIn = mutation({
   args: {
     phone: v.string(),
     name: v.string(),
+    age: v.optional(v.string()),
+    codeNo: v.optional(v.string()),
+    scdGroup: v.optional(v.string()),
+    occupation: v.optional(v.string()),
+    memberStatus: v.optional(v.string()),
     ministry: v.optional(v.string()),
+    address: v.optional(v.string()),
     date: v.optional(v.string()),
     time: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const cleanPhone = normalizePhone(args.phone);
     const cleanName = args.name.trim();
-    const cleanMinistry = args.ministry?.trim() || "";
 
     if (!cleanPhone || cleanPhone.length < 7) {
       throw new Error("Valid phone number with at least 7 digits is required.");
@@ -113,6 +124,18 @@ export const registerAndCheckIn = mutation({
     if (!cleanName) {
       throw new Error("Name is required.");
     }
+
+    const memberData = {
+      name: cleanName,
+      phone: cleanPhone,
+      age: args.age?.trim() || undefined,
+      codeNo: args.codeNo?.trim() || undefined,
+      scdGroup: args.scdGroup?.trim() || undefined,
+      occupation: args.occupation?.trim() || undefined,
+      memberStatus: args.memberStatus?.trim() || undefined,
+      ministry: args.ministry?.trim() || undefined,
+      address: args.address?.trim() || undefined,
+    };
 
     // 1. Ensure member exists
     const existingMember = await ctx.db
@@ -122,15 +145,10 @@ export const registerAndCheckIn = mutation({
 
     let memberId = existingMember?._id;
     if (existingMember) {
-      await ctx.db.patch(existingMember._id, {
-        name: cleanName,
-        ministry: cleanMinistry || undefined,
-      });
+      await ctx.db.patch(existingMember._id, memberData);
     } else {
       memberId = await ctx.db.insert("members", {
-        phone: cleanPhone,
-        name: cleanName,
-        ministry: cleanMinistry || undefined,
+        ...memberData,
         createdAt: Date.now(),
       });
     }
@@ -146,7 +164,7 @@ export const registerAndCheckIn = mutation({
 
     if (existingCheckin) {
       return {
-        member: { phone: cleanPhone, name: cleanName, ministry: cleanMinistry },
+        member: memberData,
         checkin: existingCheckin,
         alreadyCheckedIn: true,
       };
@@ -154,9 +172,7 @@ export const registerAndCheckIn = mutation({
 
     const timeStr = args.time || getTimeNow();
     const checkinId = await ctx.db.insert("checkins", {
-      phone: cleanPhone,
-      name: cleanName,
-      ministry: cleanMinistry || undefined,
+      ...memberData,
       date: targetDate,
       time: timeStr,
       timestamp: Date.now(),
@@ -164,7 +180,7 @@ export const registerAndCheckIn = mutation({
 
     const checkin = await ctx.db.get(checkinId);
     return {
-      member: { phone: cleanPhone, name: cleanName, ministry: cleanMinistry },
+      member: memberData,
       checkin,
       alreadyCheckedIn: false,
     };
