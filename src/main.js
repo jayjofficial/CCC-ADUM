@@ -26,6 +26,7 @@ let state = {
   regCodeNo: "",
   regScdGroup: "",
   regOccupation: "",
+  regMinistry: "",
   regMemberStatus: "Member",
   memberStatusDropdownOpen: false,
 
@@ -45,6 +46,7 @@ let state = {
   staffNewName: "",
   staffNewAddress: "",
   staffNewOccupation: "",
+  staffNewMinistry: "",
   staffNewPhone: "",
   staffNewAge: "Under 19",
   staffAgeDropdownOpen: false,
@@ -121,38 +123,6 @@ function esc(s) {
   return d.innerHTML;
 }
 
-// SVG Components
-function renderStatusBar() {
-  const now = new Date();
-  const hours = now.getHours();
-  const minutes = now.getMinutes().toString().padStart(2, "0");
-  const timeStr = `${hours % 12 || 12}:${minutes}`;
-
-  return `
-    <div class="status-bar">
-      <span class="status-time">${timeStr}</span>
-      <div class="status-icons">
-        <!-- Cellular Signal -->
-        <svg viewBox="0 0 18 18">
-          <rect x="1" y="12" width="2.5" height="4" rx="0.5"/>
-          <rect x="5" y="9" width="2.5" height="7" rx="0.5"/>
-          <rect x="9" y="6" width="2.5" height="10" rx="0.5"/>
-          <rect x="13" y="2" width="2.5" height="14" rx="0.5"/>
-        </svg>
-        <!-- Wifi -->
-        <svg viewBox="0 0 18 18">
-          <path d="M9 13.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-4.2-3a5.9 5.9 0 0 1 8.4 0 .9.9 0 0 1-1.3 1.3 4.1 4.1 0 0 0-5.8 0 .9.9 0 0 1-1.3-1.3zm-3.5-3.5a10.8 10.8 0 0 1 15.4 0 .9.9 0 0 1-1.3 1.3 9 9 0 0 0-12.8 0 .9.9 0 0 1-1.3-1.3z"/>
-        </svg>
-        <!-- Battery -->
-        <svg viewBox="0 0 24 14" style="width:20px;height:12px;">
-          <rect x="1" y="1" width="19" height="12" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
-          <rect x="3" y="3" width="14" height="8" rx="1.5" fill="currentColor"/>
-          <path d="M22 5v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </div>
-    </div>
-  `;
-}
 
 function renderChurchHeader() {
   return `
@@ -345,6 +315,28 @@ function renderRegisterStep2Screen() {
                 placeholder="Lawyer" 
                 value="${esc(state.regOccupation)}" 
               />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="regMinistry">Ministry (Optional):</label>
+              <input 
+                type="text" 
+                id="regMinistry" 
+                class="input-pill-red" 
+                placeholder="e.g. Ushering, Choir, Media" 
+                list="ministryOptionsList"
+                value="${esc(state.regMinistry)}" 
+              />
+              <datalist id="ministryOptionsList">
+                <option value="Ushering">
+                <option value="Choir">
+                <option value="Protocol">
+                <option value="Media & Sound">
+                <option value="Children's Ministry">
+                <option value="Prayer Team">
+                <option value="Welfare">
+                <option value="Youth Ministry">
+              </datalist>
             </div>
 
             <div class="form-group">
@@ -776,6 +768,27 @@ function renderStaffAddMemberScreen() {
               </div>
 
               <div class="form-group">
+                <label class="form-label" for="staffMinistry">Ministry (Optional):</label>
+                <input 
+                  type="text" 
+                  id="staffMinistry" 
+                  class="input-pill-red" 
+                  placeholder="e.g. Ushering, Choir, Protocol" 
+                  list="staffMinistryOptionsList"
+                  value="${esc(state.staffNewMinistry)}" 
+                />
+                <datalist id="staffMinistryOptionsList">
+                  <option value="Ushering">
+                  <option value="Choir">
+                  <option value="Protocol">
+                  <option value="Media & Sound">
+                  <option value="Children's Ministry">
+                  <option value="Prayer Team">
+                  <option value="Welfare">
+                </datalist>
+              </div>
+
+              <div class="form-group">
                 <label class="form-label">Member Status</label>
                 <div 
                   id="staffStatusDropdownTrigger" 
@@ -855,9 +868,9 @@ function render() {
       contentHtml = renderEntryScreen();
   }
 
+  const isStaff = state.screen.startsWith("staff_");
   root.innerHTML = `
-    <div class="phone-viewport">
-      ${renderStatusBar()}
+    <div class="app-shell ${isStaff ? "staff-mode" : "kiosk-mode"}">
       ${state.toast ? `<div class="toast-notice">${esc(state.toast)}</div>` : ""}
       ${contentHtml}
     </div>
@@ -990,10 +1003,12 @@ function attachEventHandlers() {
       e.preventDefault();
       const scdGroup = document.getElementById("regScdGroup")?.value.trim() || "";
       const occupation = document.getElementById("regOccupation")?.value.trim() || "";
+      const ministry = document.getElementById("regMinistry")?.value.trim() || "";
 
       setState({
         regScdGroup: scdGroup,
         regOccupation: occupation,
+        regMinistry: ministry,
         memberStatusDropdownOpen: false,
         error: "",
       });
@@ -1007,14 +1022,14 @@ function attachEventHandlers() {
           scdGroup: scdGroup,
           occupation: occupation,
           memberStatus: state.regMemberStatus,
-          ministry: state.regMemberStatus === "Member" ? "Member" : "Regular Visitor",
+          ministry: ministry || (state.regMemberStatus === "Member" ? "Member" : "Regular Visitor"),
         });
 
         setState({
           screen: "confirmed",
           confirmedPerson: {
             name: state.regName,
-            ministry: state.regMemberStatus,
+            ministry: ministry || state.regMemberStatus,
           },
           confirmedCheckinTime: res.checkin?.time || getTimeNowFormatted(),
           error: "",
@@ -1153,6 +1168,7 @@ function attachEventHandlers() {
       const name = document.getElementById("staffName")?.value.trim() || "";
       const address = document.getElementById("staffAddress")?.value.trim() || "";
       const occupation = document.getElementById("staffOccupation")?.value.trim() || "";
+      const ministry = document.getElementById("staffMinistry")?.value.trim() || "";
       const rawPhone = document.getElementById("staffPhone")?.value || "";
       const cleanPhone = normalizePhone(rawPhone);
 
@@ -1175,7 +1191,7 @@ function attachEventHandlers() {
           occupation,
           age: state.staffNewAge,
           memberStatus: state.staffNewStatus,
-          ministry: state.staffNewStatus === "Member" ? "Member" : "Visitor",
+          ministry: ministry || (state.staffNewStatus === "Would like to be a member" ? "Prospective Member" : "Visitor"),
         });
 
         // Also record today's checkin for the newly added member
@@ -1189,6 +1205,7 @@ function attachEventHandlers() {
           staffNewName: "",
           staffNewAddress: "",
           staffNewOccupation: "",
+          staffNewMinistry: "",
           staffNewPhone: "",
           staffAgeDropdownOpen: false,
           staffStatusDropdownOpen: false,

@@ -22,13 +22,13 @@
 
 body {
   font-family: var(--font-family);
-  background-color: var(--bg-page);
+  background-color: #FAFAFA;
   color: var(--ink-secondary);
   min-height: 100vh;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -37,73 +37,38 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-/* Kiosk / Phone Screen Mockup Frame */
-.phone-viewport {
+/* Responsive Web App Layout */
+.app-shell {
   width: 100%;
-  max-width: 440px;
   min-height: 100vh;
-  background-color: #FFFFFF;
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-x: hidden;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  background-color: #FAFAFA;
 }
 
-@media (min-width: 480px) {
-  .phone-viewport {
-    min-height: 844px;
-    margin: 24px auto;
-    border-radius: 40px;
-    border: 8px solid #000000;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  }
-}
-
-/* Top Phone Status Bar (9:41, wifi, battery) */
-.status-bar {
-  background-color: #000000;
-  color: #FFFFFF;
-  display: flex;
+.app-shell.kiosk-mode {
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 24px 6px;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
-  user-select: none;
-  position: sticky;
-  top: 0;
-  z-index: 50;
+  justify-content: center;
+  padding: 40px 16px;
+  background-color: #FAFAFA;
 }
 
-.status-time {
-  font-size: 14.5px;
-}
-
-.status-icons {
-  display: flex;
+.app-shell.staff-mode {
   align-items: center;
-  gap: 6px;
-}
-
-.status-icons svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
+  justify-content: flex-start;
+  background-color: #FFFFFF;
 }
 
 /* Main Content Area */
 .app-content {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 24px 18px 32px;
-  background-color: #FFFFFF;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
   position: relative;
 }
 
@@ -114,8 +79,9 @@ body {
   padding: 2px;
   background: linear-gradient(180deg, #622372 0%, #901B56 35%, #C1121F 80%, #DC2626 100%);
   width: 100%;
-  margin: auto 0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  max-width: 420px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .gradient-card {
@@ -404,11 +370,13 @@ body {
    ========================================= */
 
 .staff-view-container {
-  flex: 1;
+  width: 100%;
+  max-width: 1000px;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  width: 100%;
   background: #FFFFFF;
+  margin: 0 auto;
 }
 
 /* Staff Top Navigation Bar */
@@ -416,12 +384,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 16px 24px;
   background-color: #FFFFFF;
   border-bottom: 1px solid var(--border-light);
   position: sticky;
-  top: 36px;
+  top: 0;
   z-index: 45;
+  width: 100%;
 }
 
 .staff-nav-left {
@@ -699,20 +668,21 @@ body {
 
 /* Toast Message */
 .toast-notice {
-  position: absolute;
-  top: 54px;
-  left: 20px;
-  right: 20px;
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   background-color: #10B981;
   color: #FFFFFF;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 13.5px;
-  font-weight: 500;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
   text-align: center;
-  z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   animation: fadeToast 0.25s ease-out;
+  max-width: 90vw;
 }
 
 @keyframes fadeToast {
