@@ -9,8 +9,208 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/src/style.css">
+  <style>
+    /* Critical Preloader Styles (Renders instantly on visit/refresh) */
+    .app-initial-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #FAFAFA;
+      background-image: radial-gradient(circle at center, rgba(92, 39, 107, 0.09) 0%, #FAFAFA 72%);
+      opacity: 1;
+      visibility: visible;
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s;
+    }
+    .app-initial-loader.fade-out {
+      opacity: 0;
+      transform: scale(1.04);
+      pointer-events: none;
+      visibility: hidden;
+    }
+    .loader-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* Centered Liquid Filling Logo Vessel */
+    .liquid-logo-vessel {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .loader-pulse-ring {
+      position: absolute;
+      inset: -18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(193, 18, 31, 0.22) 0%, rgba(92, 39, 107, 0) 70%);
+      animation: pulseAura 2.2s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    /* 1. Base faint watermark outline */
+    .liquid-logo-base {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      opacity: 0.18;
+      filter: grayscale(100%);
+      pointer-events: none;
+    }
+    /* 2. Liquid Wave Fill that rises to fill the logo */
+    .liquid-logo-fill-mask {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      width: 120px;
+      height: 0%;
+      overflow: hidden;
+      -webkit-mask-image: url('/ccc-logo.png');
+      mask-image: url('/ccc-logo.png');
+      -webkit-mask-size: 120px 120px;
+      mask-size: 120px 120px;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: bottom left;
+      mask-position: bottom left;
+      transition: height 0.08s linear;
+    }
+    .liquid-logo-vibrant {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 120px;
+      height: 120px;
+      object-fit: contain;
+      pointer-events: none;
+      filter: drop-shadow(0 6px 18px rgba(92, 39, 107, 0.28));
+    }
+    /* Waving Liquid Crest at the top of the fluid */
+    .logo-wave-crest {
+      position: absolute;
+      top: 0px;
+      left: -50%;
+      width: 200%;
+      height: 16px;
+      pointer-events: none;
+      z-index: 5;
+    }
+    .logo-wave {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .logo-wave svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .wave-back {
+      fill: rgba(193, 18, 31, 0.45);
+      animation: waveShiftBack 2s linear infinite;
+    }
+    .wave-front {
+      fill: rgba(92, 39, 107, 0.65);
+      animation: waveShiftFront 1.35s linear infinite;
+    }
+    @keyframes waveShiftBack {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    @keyframes waveShiftFront {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .logo-liquid-sheen {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, rgba(92, 39, 107, 0.12) 100%);
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    .loader-brand-title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 19px;
+      font-weight: 700;
+      color: #111827;
+      letter-spacing: -0.3px;
+      margin-bottom: 4px;
+    }
+    .loader-brand-sub {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #5C276B;
+      letter-spacing: 0.2px;
+      margin-bottom: 6px;
+    }
+    .loader-status-simple {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12.5px;
+      font-weight: 500;
+      color: #6B7280;
+      letter-spacing: 0.1px;
+    }
+
+    @keyframes pulseAura {
+      0% { transform: scale(0.85); opacity: 0.25; }
+      100% { transform: scale(1.15); opacity: 0.85; }
+    }
+  </style>
 </head>
 <body>
+  <!-- Initial Animated Liquid Logo Loader -->
+  <div id="appLoader" class="app-initial-loader">
+    <div class="loader-inner">
+      <!-- Centered Liquid Filling Logo Vessel -->
+      <div class="liquid-logo-vessel">
+        <div class="loader-pulse-ring"></div>
+        <!-- 1. Background Outline Logo -->
+        <img src="/ccc-logo.png" alt="CCC Adum" class="liquid-logo-base">
+
+        <!-- 2. Rising Liquid Fill inside the Logo -->
+        <div class="liquid-logo-fill-mask" id="liquidLogoFill">
+          <img src="/ccc-logo.png" alt="CCC Adum" class="liquid-logo-vibrant">
+          <div class="logo-wave-crest">
+            <div class="logo-wave wave-back">
+              <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+                <path d="M0,15 C150,0 300,30 450,15 C600,0 750,30 900,15 C1050,0 1200,30 1350,15 L1350,40 L0,40 Z"></path>
+              </svg>
+            </div>
+            <div class="logo-wave wave-front">
+              <svg viewBox="0 0 1200 40" preserveAspectRatio="none">
+                <path d="M0,20 C150,32 300,8 450,20 C600,32 750,8 900,20 C1050,32 1200,8 1350,20 L1350,40 L0,40 Z"></path>
+              </svg>
+            </div>
+          </div>
+          <div class="logo-liquid-sheen"></div>
+        </div>
+      </div>
+
+      <div class="loader-brand-title">Calvary Charismatic Center</div>
+      <div class="loader-brand-sub">Adum · Kumasi</div>
+      <div class="loader-status-simple" id="liquidStatusText">Loading...</div>
+    </div>
+  </div>
+
   <div id="root"></div>
   <script type="module" src="/src/main.js"></script>
 </body>

@@ -1257,7 +1257,7 @@ function render() {
       contentHtml = renderEntryScreen();
   }
 
-  const isStaff = state.screen.startsWith("staff_");
+  const isStaff = state.screen.startsWith("staff_") && state.screen !== "staff_pin";
   root.innerHTML = `
     <div class="app-shell ${isStaff ? "staff-mode" : "kiosk-mode"}">
       ${contentHtml}
@@ -1426,6 +1426,7 @@ function attachEventHandlers() {
       setState({ screen: "staff_pin", pinInput: "", pinError: "", error: "" });
     };
   }
+
 
   // 2. Registration Step 1 Submit (Pages 2 & 3)
   const regStep1Form = document.getElementById("regStep1Form");
@@ -1634,6 +1635,7 @@ function attachEventHandlers() {
       setState({ screen: "staff_add_member", drawerOpen: false });
     };
   }
+
 
   const drawerLogoutBtn = document.getElementById("drawerLogoutBtn");
   if (drawerLogoutBtn) {
@@ -2096,6 +2098,85 @@ function exportMembersCsv() {
 }
 
 // -------------------------------------------------------------
+// INITIAL APP LIQUID LOGO LOADER
+// -------------------------------------------------------------
+let liquidProgress = 0;
+let liquidAnimFrame = null;
+let liquidDismissed = false;
+let liquidStartTime = null;
+
+function startLiquidProgress() {
+  const loader = document.getElementById("appLoader");
+  const fillEl = document.getElementById("liquidLogoFill");
+  const statusEl = document.getElementById("liquidStatusText");
+
+  if (!loader || !fillEl) return;
+
+  liquidDismissed = false;
+  liquidProgress = 0;
+  liquidStartTime = performance.now();
+  if (statusEl) statusEl.textContent = "Connecting to CCC Adum...";
+
+  loader.onclick = () => {
+    fastForwardAndDismiss();
+  };
+
+  if (liquidAnimFrame) cancelAnimationFrame(liquidAnimFrame);
+
+  function tick(now) {
+    if (liquidDismissed) return;
+
+    const elapsed = now - liquidStartTime;
+    // Naturally climb swiftly toward ~85% in 500ms while waiting for backend data
+    const target = Math.min(85, (elapsed / 500) * 85);
+    if (liquidProgress < target) {
+      liquidProgress = target;
+      fillEl.style.height = `${liquidProgress.toFixed(0)}%`;
+    }
+
+    if (liquidProgress < 85 && !liquidDismissed) {
+      liquidAnimFrame = requestAnimationFrame(tick);
+    }
+  }
+
+  liquidAnimFrame = requestAnimationFrame(tick);
+}
+
+function fastForwardAndDismiss() {
+  if (liquidDismissed) return;
+  completeLiquidProgressAndDismiss(100);
+}
+
+function completeLiquidProgressAndDismiss(delayMs = 240) {
+  if (liquidDismissed) return;
+  liquidDismissed = true;
+  if (liquidAnimFrame) cancelAnimationFrame(liquidAnimFrame);
+
+  const fillEl = document.getElementById("liquidLogoFill");
+  const statusEl = document.getElementById("liquidStatusText");
+
+  if (fillEl) fillEl.style.height = "100%";
+  if (statusEl) statusEl.textContent = "Ready!";
+
+  setTimeout(() => {
+    dismissAppLoader();
+  }, delayMs);
+}
+
+function dismissAppLoader() {
+  const loader = document.getElementById("appLoader");
+  if (!loader || loader.dataset.dismissed === "true") return;
+  loader.dataset.dismissed = "true";
+  loader.classList.add("fade-out");
+  setTimeout(() => {
+    if (loader) {
+      loader.style.display = "none";
+      loader.classList.remove("fade-out");
+    }
+  }, 450);
+}
+
+// -------------------------------------------------------------
 // CONVEX LIVE SUBSCRIPTIONS
 // -------------------------------------------------------------
 function initConvex() {
@@ -2106,12 +2187,14 @@ function initConvex() {
     state.checkins = records || [];
     state.isConvexConnected = true;
     render();
+    completeLiquidProgressAndDismiss(240);
   });
 
   // 2. Live Members List
   convex.onUpdate(api.members.list, {}, (membersList) => {
     state.members = membersList || [];
     render();
+    completeLiquidProgressAndDismiss(240);
   });
 
   // 3. Live Previous List Members
@@ -2134,5 +2217,14 @@ function initConvex() {
 }
 
 // Start
+startLiquidProgress();
 initConvex();
 render();
+
+// Fallback safety: guarantee loader dismisses after 2.0s even if offline
+setTimeout(() => {
+  if (!liquidDismissed) {
+    completeLiquidProgressAndDismiss(150);
+  }
+}, 2000);
+
