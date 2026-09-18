@@ -42,6 +42,13 @@ let state = {
   searchQuery: "",
   showSearch: false,
 
+  // Staff Previous Lists State
+  previousListDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
+  previousListMode: "date", // "date" or "all_members"
+  previousListRecords: [],
+  previousSearchQuery: "",
+  showPreviousSearch: false,
+
   // Staff Add Member Form State
   staffNewName: "",
   staffNewAddress: "",
@@ -59,7 +66,46 @@ let state = {
   isConvexConnected: false,
 };
 
+function syncCurrentFormInputsToState() {
+  const regName = document.getElementById("regName");
+  if (regName) state.regName = regName.value;
+
+  const regCodeNo = document.getElementById("regCodeNo");
+  if (regCodeNo) state.regCodeNo = regCodeNo.value;
+
+  const regScdGroup = document.getElementById("regScdGroup");
+  if (regScdGroup) state.regScdGroup = regScdGroup.value;
+
+  const regOccupation = document.getElementById("regOccupation");
+  if (regOccupation) state.regOccupation = regOccupation.value;
+
+  const regMinistry = document.getElementById("regMinistry");
+  if (regMinistry) state.regMinistry = regMinistry.value;
+
+  const staffName = document.getElementById("staffName");
+  if (staffName) state.staffNewName = staffName.value;
+
+  const staffPhone = document.getElementById("staffPhone");
+  if (staffPhone) state.staffNewPhone = staffPhone.value;
+
+  const staffAddress = document.getElementById("staffAddress");
+  if (staffAddress) state.staffNewAddress = staffAddress.value;
+
+  const staffOccupation = document.getElementById("staffOccupation");
+  if (staffOccupation) state.staffNewOccupation = staffOccupation.value;
+
+  const staffMinistry = document.getElementById("staffMinistry");
+  if (staffMinistry) state.staffNewMinistry = staffMinistry.value;
+
+  const phoneInput = document.getElementById("phoneInput");
+  if (phoneInput) state.phoneInput = phoneInput.value;
+
+  const pinInput = document.getElementById("pinInput");
+  if (pinInput) state.pinInput = pinInput.value;
+}
+
 function setState(patch) {
+  syncCurrentFormInputsToState();
   state = Object.assign({}, state, patch);
   render();
 }
@@ -324,19 +370,8 @@ function renderRegisterStep2Screen() {
                 id="regMinistry" 
                 class="input-pill-red" 
                 placeholder="e.g. Ushering, Choir, Media" 
-                list="ministryOptionsList"
                 value="${esc(state.regMinistry)}" 
               />
-              <datalist id="ministryOptionsList">
-                <option value="Ushering">
-                <option value="Choir">
-                <option value="Protocol">
-                <option value="Media & Sound">
-                <option value="Children's Ministry">
-                <option value="Prayer Team">
-                <option value="Welfare">
-                <option value="Youth Ministry">
-              </datalist>
             </div>
 
             <div class="form-group">
@@ -472,14 +507,9 @@ function renderStaffPinScreen() {
   `;
 }
 
-// -------------------------------------------------------------
-// SCREEN 6: Staff Check-ins Table (Pages 8, 9, 10)
-// -------------------------------------------------------------
-function renderStaffCheckinsScreen() {
-  const checkins = state.checkins || [];
-  const q = (state.searchQuery || "").toLowerCase().trim();
-
-  const filtered = checkins.filter((c) => {
+function renderCheckinsTableRowsHtml(checkins, query) {
+  const q = (query || "").toLowerCase().trim();
+  const filtered = (checkins || []).filter((c) => {
     if (!q) return true;
     return (
       (c.name && c.name.toLowerCase().includes(q)) ||
@@ -492,9 +522,52 @@ function renderStaffCheckinsScreen() {
     );
   });
 
-  // Ensure table shows empty rows if list is short (matching Pages 8 & 9)
   const displayRowsCount = Math.max(10, filtered.length);
   const emptyRowsCount = displayRowsCount - filtered.length;
+
+  const dataRows = filtered
+    .map(
+      (row) => `
+    <tr>
+      <td><strong>${esc(row.name)}</strong></td>
+      <td>${esc(row.age || "—")}</td>
+      <td>${esc(formatPhoneDisplay(row.phone))}</td>
+      <td>${esc(row.scdGroup || "—")}</td>
+      <td>${esc(row.occupation || "—")}</td>
+      <td>${esc(row.codeNo || "—")}</td>
+      <td>${esc(row.memberStatus || "Member")}</td>
+      <td>${esc(row.ministry || "—")}</td>
+    </tr>
+  `
+    )
+    .join("");
+
+  const emptyRows = Array.from({ length: emptyRowsCount })
+    .map(
+      () => `
+    <tr class="empty-row">
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  `
+    )
+    .join("");
+
+  return dataRows + emptyRows;
+}
+
+// -------------------------------------------------------------
+// SCREEN 6: Staff Check-ins Table (Pages 8, 9, 10)
+// -------------------------------------------------------------
+function renderStaffCheckinsScreen() {
+  const checkins = state.checkins || [];
+  const q = state.searchQuery || "";
 
   return `
     <div class="staff-view-container">
@@ -564,40 +637,8 @@ function renderStaffCheckinsScreen() {
                 <th>Ministry</th>
               </tr>
             </thead>
-            <tbody>
-              ${filtered
-                .map(
-                  (row) => `
-                <tr>
-                  <td><strong>${esc(row.name)}</strong></td>
-                  <td>${esc(row.age || "—")}</td>
-                  <td>${esc(formatPhoneDisplay(row.phone))}</td>
-                  <td>${esc(row.scdGroup || "—")}</td>
-                  <td>${esc(row.occupation || "—")}</td>
-                  <td>${esc(row.codeNo || "—")}</td>
-                  <td>${esc(row.memberStatus || "Member")}</td>
-                  <td>${esc(row.ministry || "—")}</td>
-                </tr>
-              `
-                )
-                .join("")}
-
-              ${Array.from({ length: emptyRowsCount })
-                .map(
-                  () => `
-                <tr class="empty-row">
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                  <td>&nbsp;</td>
-                </tr>
-              `
-                )
-                .join("")}
+            <tbody id="checkinsTableBody">
+              ${renderCheckinsTableRowsHtml(checkins, q)}
             </tbody>
           </table>
         </div>
@@ -605,6 +646,130 @@ function renderStaffCheckinsScreen() {
         <!-- Export CSV Button (Bottom right) -->
         <div class="table-footer-row">
           <button id="exportCsvBtn" class="btn-purple-solid">
+            Export list (CSV)
+          </button>
+        </div>
+      </div>
+
+      <!-- Slide-out Drawer (Page 10) -->
+      ${renderStaffDrawer()}
+    </div>
+  `;
+}
+
+// -------------------------------------------------------------
+// SCREEN 6B: Staff Previous Lists (History & Directory)
+// -------------------------------------------------------------
+function renderStaffPreviousScreen() {
+  const isDate = state.previousListMode === "date";
+  const records = isDate ? state.previousListRecords : state.members;
+  const q = state.previousSearchQuery || "";
+
+  return `
+    <div class="staff-view-container">
+      <!-- Staff Top Navigation Bar -->
+      <div class="staff-top-nav">
+        <div class="staff-nav-left">
+          <img src="/ccc-logo.png" alt="Logo" class="staff-logo-icon">
+          <div class="staff-nav-brand">
+            Calvary Charismatic<br>Center, Adum
+          </div>
+        </div>
+        <button id="hamburgerBtn" class="staff-hamburger-btn" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="checkins-content-area">
+        <div class="checkins-header-row">
+          <div class="checkins-title-col">
+            <h2 class="checkins-title-text">Previous lists</h2>
+            <div class="checkins-date-badge">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+              </svg>
+              <span>${isDate ? `Service date: ${esc(state.previousListDate)}` : `All members (${state.members.length})`}</span>
+            </div>
+          </div>
+
+          <button id="togglePreviousSearchBtn" class="search-toggle-btn" title="Search members">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filter Controls: Date Picker + Mode Switcher -->
+        <div class="previous-controls-bar">
+          <div class="segmented-toggle">
+            <button type="button" id="prevModeDateBtn" class="toggle-pill-btn ${isDate ? "active" : ""}">
+              By Date
+            </button>
+            <button type="button" id="prevModeMembersBtn" class="toggle-pill-btn ${!isDate ? "active" : ""}">
+              All Members
+            </button>
+          </div>
+
+          ${
+            isDate
+              ? `
+            <div class="date-picker-label-group">
+              <span style="font-size: 12.5px; color: #4B5563;">Date:</span>
+              <input 
+                type="date" 
+                id="previousDateInput" 
+                class="date-picker-input" 
+                value="${esc(state.previousListDate)}" 
+              />
+            </div>
+          `
+              : ""
+          }
+        </div>
+
+        ${
+          state.showPreviousSearch
+            ? `
+          <input 
+            type="text" 
+            id="previousSearchInput" 
+            class="search-input-box" 
+            placeholder="Search by name, phone, occupation, group..." 
+            value="${esc(state.previousSearchQuery)}"
+            autofocus
+          />
+        `
+            : ""
+        }
+
+        <!-- Horizontally Scrollable 8-column Table -->
+        <div class="table-scroll-wrapper">
+          <table class="checkins-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Phone No.</th>
+                <th>SCD Group</th>
+                <th>Occupation</th>
+                <th>Code No.</th>
+                <th>Member Status</th>
+                <th>Ministry</th>
+              </tr>
+            </thead>
+            <tbody id="previousTableBody">
+              ${renderCheckinsTableRowsHtml(records, q)}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Export CSV Button (Bottom right) -->
+        <div class="table-footer-row">
+          <button id="exportPreviousCsvBtn" class="btn-purple-solid">
             Export list (CSV)
           </button>
         </div>
@@ -635,6 +800,13 @@ function renderStaffDrawer() {
             class="drawer-menu-item ${state.screen === "staff_checkins" ? "active" : ""}"
           >
             Check-ins
+          </button>
+          <button 
+            type="button" 
+            id="drawerPreviousListsBtn" 
+            class="drawer-menu-item ${state.screen === "staff_previous" ? "active" : ""}"
+          >
+            Previous lists
           </button>
           <button 
             type="button" 
@@ -685,14 +857,14 @@ function renderStaffAddMemberScreen() {
 
       <!-- Add New Member Form Card (Page 11 & 12) -->
       <div class="app-content add-member-card-wrapper">
-        <div class="gradient-card-wrapper" style="max-width: 380px;">
-          <div class="gradient-card" style="padding: 24px 20px;">
-            <h2 class="view-heading-bold" style="margin-bottom: 20px;">
+        <div class="gradient-card-wrapper" style="max-width: 480px;">
+          <div class="gradient-card" style="padding: 20px 22px 18px;">
+            <h2 class="view-heading-bold" style="margin-bottom: 12px;">
               Add new member
             </h2>
 
             <form id="staffAddMemberForm" class="add-member-form">
-              <div class="form-group">
+              <div class="form-group full-width">
                 <label class="form-label" for="staffName">Full Name:</label>
                 <input 
                   type="text" 
@@ -705,28 +877,6 @@ function renderStaffAddMemberScreen() {
               </div>
 
               <div class="form-group">
-                <label class="form-label" for="staffAddress">Address:</label>
-                <input 
-                  type="text" 
-                  id="staffAddress" 
-                  class="input-pill-red" 
-                  placeholder="Suame, Kumasi" 
-                  value="${esc(state.staffNewAddress)}" 
-                />
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="staffOccupation">Occupation:</label>
-                <input 
-                  type="text" 
-                  id="staffOccupation" 
-                  class="input-pill-red" 
-                  placeholder="Lawyer" 
-                  value="${esc(state.staffNewOccupation)}" 
-                />
-              </div>
-
-              <div class="form-group">
                 <label class="form-label" for="staffPhone">Phone Number:</label>
                 <input 
                   type="tel" 
@@ -735,6 +885,17 @@ function renderStaffAddMemberScreen() {
                   placeholder="(+233) 0000 000 000" 
                   value="${esc(state.staffNewPhone)}" 
                   required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="staffAddress">Address:</label>
+                <input 
+                  type="text" 
+                  id="staffAddress" 
+                  class="input-pill-red" 
+                  placeholder="Suame, Kumasi" 
+                  value="${esc(state.staffNewAddress)}" 
                 />
               </div>
 
@@ -768,24 +929,25 @@ function renderStaffAddMemberScreen() {
               </div>
 
               <div class="form-group">
+                <label class="form-label" for="staffOccupation">Occupation:</label>
+                <input 
+                  type="text" 
+                  id="staffOccupation" 
+                  class="input-pill-red" 
+                  placeholder="Lawyer" 
+                  value="${esc(state.staffNewOccupation)}" 
+                />
+              </div>
+
+              <div class="form-group">
                 <label class="form-label" for="staffMinistry">Ministry (Optional):</label>
                 <input 
                   type="text" 
                   id="staffMinistry" 
                   class="input-pill-red" 
-                  placeholder="e.g. Ushering, Choir, Protocol" 
-                  list="staffMinistryOptionsList"
+                  placeholder="e.g. Ushering, Choir" 
                   value="${esc(state.staffNewMinistry)}" 
                 />
-                <datalist id="staffMinistryOptionsList">
-                  <option value="Ushering">
-                  <option value="Choir">
-                  <option value="Protocol">
-                  <option value="Media & Sound">
-                  <option value="Children's Ministry">
-                  <option value="Prayer Team">
-                  <option value="Welfare">
-                </datalist>
               </div>
 
               <div class="form-group">
@@ -819,7 +981,7 @@ function renderStaffAddMemberScreen() {
 
               ${state.error ? `<div class="error-notice">${esc(state.error)}</div>` : ""}
 
-              <button type="submit" class="btn-red-outline" style="margin-top: 14px;">
+              <button type="submit" class="btn-red-outline" style="margin-top: 6px;">
                 Add member
               </button>
             </form>
@@ -839,6 +1001,18 @@ function renderStaffAddMemberScreen() {
 function render() {
   const root = document.getElementById("root");
   if (!root) return;
+
+  // Preserve focused element and cursor selection across re-renders
+  const activeEl = document.activeElement;
+  const activeId = activeEl && activeEl.id ? activeEl.id : null;
+  let selStart = null;
+  let selEnd = null;
+  if (activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA")) {
+    try {
+      selStart = activeEl.selectionStart;
+      selEnd = activeEl.selectionEnd;
+    } catch (e) {}
+  }
 
   let contentHtml = "";
 
@@ -861,6 +1035,9 @@ function render() {
     case "staff_checkins":
       contentHtml = renderStaffCheckinsScreen();
       break;
+    case "staff_previous":
+      contentHtml = renderStaffPreviousScreen();
+      break;
     case "staff_add_member":
       contentHtml = renderStaffAddMemberScreen();
       break;
@@ -868,7 +1045,10 @@ function render() {
       contentHtml = renderEntryScreen();
   }
 
-  const isStaff = state.screen.startsWith("staff_");
+  const isStaff =
+    state.screen === "staff_checkins" ||
+    state.screen === "staff_previous" ||
+    state.screen === "staff_add_member";
   root.innerHTML = `
     <div class="app-shell ${isStaff ? "staff-mode" : "kiosk-mode"}">
       ${state.toast ? `<div class="toast-notice">${esc(state.toast)}</div>` : ""}
@@ -877,12 +1057,110 @@ function render() {
   `;
 
   attachEventHandlers();
+
+  // Restore focus and cursor selection if applicable
+  if (activeId) {
+    const restoredEl = document.getElementById(activeId);
+    if (restoredEl && (restoredEl.tagName === "INPUT" || restoredEl.tagName === "TEXTAREA")) {
+      restoredEl.focus();
+      if (selStart !== null && selEnd !== null) {
+        try {
+          restoredEl.setSelectionRange(selStart, selEnd);
+        } catch (e) {}
+      }
+    }
+  }
 }
 
 // -------------------------------------------------------------
 // EVENT HANDLERS & LOGIC
 // -------------------------------------------------------------
 function attachEventHandlers() {
+  // Real-time Input Listeners (ensures state is always in sync with what the user types)
+  const phoneInputEl = document.getElementById("phoneInput");
+  if (phoneInputEl) {
+    phoneInputEl.oninput = (e) => {
+      state.phoneInput = e.target.value;
+    };
+  }
+
+  const regNameEl = document.getElementById("regName");
+  if (regNameEl) {
+    regNameEl.oninput = (e) => {
+      state.regName = e.target.value;
+    };
+  }
+
+  const regCodeNoEl = document.getElementById("regCodeNo");
+  if (regCodeNoEl) {
+    regCodeNoEl.oninput = (e) => {
+      state.regCodeNo = e.target.value;
+    };
+  }
+
+  const regScdGroupEl = document.getElementById("regScdGroup");
+  if (regScdGroupEl) {
+    regScdGroupEl.oninput = (e) => {
+      state.regScdGroup = e.target.value;
+    };
+  }
+
+  const regOccupationEl = document.getElementById("regOccupation");
+  if (regOccupationEl) {
+    regOccupationEl.oninput = (e) => {
+      state.regOccupation = e.target.value;
+    };
+  }
+
+  const regMinistryEl = document.getElementById("regMinistry");
+  if (regMinistryEl) {
+    regMinistryEl.oninput = (e) => {
+      state.regMinistry = e.target.value;
+    };
+  }
+
+  const pinInputEl = document.getElementById("pinInput");
+  if (pinInputEl) {
+    pinInputEl.oninput = (e) => {
+      state.pinInput = e.target.value;
+    };
+  }
+
+  const staffNameEl = document.getElementById("staffName");
+  if (staffNameEl) {
+    staffNameEl.oninput = (e) => {
+      state.staffNewName = e.target.value;
+    };
+  }
+
+  const staffPhoneEl = document.getElementById("staffPhone");
+  if (staffPhoneEl) {
+    staffPhoneEl.oninput = (e) => {
+      state.staffNewPhone = e.target.value;
+    };
+  }
+
+  const staffAddressEl = document.getElementById("staffAddress");
+  if (staffAddressEl) {
+    staffAddressEl.oninput = (e) => {
+      state.staffNewAddress = e.target.value;
+    };
+  }
+
+  const staffOccupationEl = document.getElementById("staffOccupation");
+  if (staffOccupationEl) {
+    staffOccupationEl.oninput = (e) => {
+      state.staffNewOccupation = e.target.value;
+    };
+  }
+
+  const staffMinistryEl = document.getElementById("staffMinistry");
+  if (staffMinistryEl) {
+    staffMinistryEl.oninput = (e) => {
+      state.staffNewMinistry = e.target.value;
+    };
+  }
+
   // 1. Phone Entry Submit (Page 1)
   const phoneForm = document.getElementById("phoneEntryForm");
   if (phoneForm) {
@@ -1123,6 +1401,16 @@ function attachEventHandlers() {
     };
   }
 
+  const drawerPreviousListsBtn = document.getElementById("drawerPreviousListsBtn");
+  if (drawerPreviousListsBtn) {
+    drawerPreviousListsBtn.onclick = () => {
+      setState({ screen: "staff_previous", drawerOpen: false });
+      if (state.previousListMode === "date") {
+        loadPreviousRecordsForDate(state.previousListDate);
+      }
+    };
+  }
+
   const drawerAddMemberBtn = document.getElementById("drawerAddMemberBtn");
   if (drawerAddMemberBtn) {
     drawerAddMemberBtn.onclick = () => {
@@ -1145,10 +1433,16 @@ function attachEventHandlers() {
     };
   }
 
+  // Direct In-Place Search Input: Filters table directly WITHOUT destroying the input or losing focus/keystrokes
   const tableSearchInput = document.getElementById("tableSearchInput");
   if (tableSearchInput) {
     tableSearchInput.oninput = (e) => {
-      setState({ searchQuery: e.target.value });
+      const q = e.target.value;
+      state.searchQuery = q;
+      const tbody = document.getElementById("checkinsTableBody");
+      if (tbody) {
+        tbody.innerHTML = renderCheckinsTableRowsHtml(state.checkins, q);
+      }
     };
   }
 
@@ -1157,6 +1451,59 @@ function attachEventHandlers() {
   if (exportCsvBtn) {
     exportCsvBtn.onclick = () => {
       exportCheckinsCsv();
+    };
+  }
+
+  // Previous Lists Controls
+  const prevModeDateBtn = document.getElementById("prevModeDateBtn");
+  if (prevModeDateBtn) {
+    prevModeDateBtn.onclick = () => {
+      setState({ previousListMode: "date" });
+      loadPreviousRecordsForDate(state.previousListDate);
+    };
+  }
+
+  const prevModeMembersBtn = document.getElementById("prevModeMembersBtn");
+  if (prevModeMembersBtn) {
+    prevModeMembersBtn.onclick = () => {
+      setState({ previousListMode: "all_members" });
+    };
+  }
+
+  const previousDateInput = document.getElementById("previousDateInput");
+  if (previousDateInput) {
+    previousDateInput.onchange = (e) => {
+      const newDate = e.target.value;
+      state.previousListDate = newDate;
+      loadPreviousRecordsForDate(newDate);
+    };
+  }
+
+  const togglePreviousSearchBtn = document.getElementById("togglePreviousSearchBtn");
+  if (togglePreviousSearchBtn) {
+    togglePreviousSearchBtn.onclick = () => {
+      setState({ showPreviousSearch: !state.showPreviousSearch, previousSearchQuery: "" });
+    };
+  }
+
+  const previousSearchInput = document.getElementById("previousSearchInput");
+  if (previousSearchInput) {
+    previousSearchInput.oninput = (e) => {
+      const q = e.target.value;
+      state.previousSearchQuery = q;
+      const tbody = document.getElementById("previousTableBody");
+      if (tbody) {
+        const isDate = state.previousListMode === "date";
+        const records = isDate ? state.previousListRecords : state.members;
+        tbody.innerHTML = renderCheckinsTableRowsHtml(records, q);
+      }
+    };
+  }
+
+  const exportPreviousCsvBtn = document.getElementById("exportPreviousCsvBtn");
+  if (exportPreviousCsvBtn) {
+    exportPreviousCsvBtn.onclick = () => {
+      exportPreviousCsv();
     };
   }
 
@@ -1323,6 +1670,76 @@ function exportCheckinsCsv() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast("Check-in list exported to CSV!");
+}
+
+async function loadPreviousRecordsForDate(dateStr) {
+  try {
+    const records = await convex.query(api.checkins.getForDate, { date: dateStr });
+    state.previousListRecords = records || [];
+    const tbody = document.getElementById("previousTableBody");
+    if (tbody) {
+      const q = state.previousSearchQuery || "";
+      tbody.innerHTML = renderCheckinsTableRowsHtml(state.previousListRecords, q);
+    }
+  } catch (err) {
+    console.error("Failed to load records for date:", err);
+  }
+}
+
+function exportPreviousCsv() {
+  const isDate = state.previousListMode === "date";
+  let records = isDate ? state.previousListRecords : state.members;
+  const q = (state.previousSearchQuery || "").toLowerCase().trim();
+  if (q) {
+    records = records.filter((r) => {
+      const text = `${r.name || ""} ${r.phone || ""} ${r.occupation || ""} ${r.scdGroup || ""} ${r.ministry || ""}`.toLowerCase();
+      return text.includes(q);
+    });
+  }
+
+  if (!records || !records.length) {
+    showToast("No records to export.");
+    return;
+  }
+
+  const headers = [
+    "Name",
+    "Age",
+    "Phone No.",
+    "SCD Group",
+    "Occupation",
+    "Code No.",
+    "Member Status",
+    "Ministry",
+    "Time",
+    "Date",
+  ];
+
+  const rows = records.map((c) => [
+    `"${(c.name || "").replace(/"/g, '""')}"`,
+    `"${(c.age || "").replace(/"/g, '""')}"`,
+    `"${c.phone || ""}"`,
+    `"${(c.scdGroup || "").replace(/"/g, '""')}"`,
+    `"${(c.occupation || "").replace(/"/g, '""')}"`,
+    `"${(c.codeNo || "").replace(/"/g, '""')}"`,
+    `"${(c.memberStatus || "").replace(/"/g, '""')}"`,
+    `"${(c.ministry || "").replace(/"/g, '""')}"`,
+    `"${c.time || ""}"`,
+    `"${c.date || (isDate ? state.previousListDate : "")}"`,
+  ]);
+
+  const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const filenameTag = isDate ? state.previousListDate : "All_Members";
+  a.download = `CCC_Adum_${filenameTag}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Previous list exported to CSV!");
 }
 
 // -------------------------------------------------------------

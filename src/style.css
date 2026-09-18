@@ -20,13 +20,21 @@
   padding: 0;
 }
 
-body {
+html, body {
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   font-family: var(--font-family);
   background-color: #FAFAFA;
   color: var(--ink-secondary);
-  min-height: 100vh;
-  margin: 0;
-  padding: 0;
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
@@ -34,32 +42,39 @@ body {
 
 #root {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Responsive Web App Layout */
 .app-shell {
   width: 100%;
-  min-height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: relative;
   background-color: #FAFAFA;
+  overflow: hidden;
 }
 
 .app-shell.kiosk-mode {
   align-items: center;
   justify-content: center;
-  padding: 40px 16px;
+  padding: 16px;
   background-color: #FAFAFA;
 }
 
 .app-shell.staff-mode {
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center;
   background-color: #FFFFFF;
+  padding: 0;
 }
 
 /* Main Content Area */
@@ -87,7 +102,7 @@ body {
 .gradient-card {
   background: #FFFFFF;
   border-radius: 26px;
-  padding: 30px 22px 26px;
+  padding: 22px 22px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -99,19 +114,19 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .church-logo-img {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   mix-blend-mode: multiply;
 }
 
 .church-brand-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: #111827;
   text-align: center;
@@ -119,38 +134,38 @@ body {
 }
 
 .church-brand-sub {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 400;
   color: #4B5563;
   text-align: center;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
 .service-date-text {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 400;
   color: #374151;
   text-align: center;
-  margin: 12px 0 10px;
+  margin: 8px 0 6px;
 }
 
 /* Headings */
 .view-heading-bold {
-  font-size: 21px;
+  font-size: 20px;
   font-weight: 700;
   color: #000000;
   text-align: center;
   line-height: 1.25;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .view-subtext-muted {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 400;
   color: #4B5563;
   text-align: center;
-  line-height: 1.4;
-  margin-bottom: 22px;
+  line-height: 1.35;
+  margin-bottom: 14px;
   max-width: 280px;
 }
 
@@ -159,7 +174,7 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
 .form-group {
@@ -170,10 +185,10 @@ body {
 }
 
 .form-label {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 500;
   color: #111827;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   text-align: left;
 }
 
@@ -181,8 +196,8 @@ body {
   width: 100%;
   border: 1.5px solid var(--crimson-red);
   border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 14.5px;
+  padding: 10px 14px;
+  font-size: 14px;
   color: #111827;
   background-color: #FFFFFF;
   outline: none;
@@ -205,8 +220,8 @@ body {
   width: 100%;
   border: 1.5px solid var(--crimson-red);
   border-radius: 12px;
-  padding: 12px 16px;
-  font-size: 14.5px;
+  padding: 10px 14px;
+  font-size: 14px;
   color: #111827;
   background-color: #FFFFFF;
   display: flex;
@@ -242,8 +257,8 @@ body {
 }
 
 .select-option-item {
-  padding: 11px 16px;
-  font-size: 14px;
+  padding: 10px 14px;
+  font-size: 13.5px;
   color: #111827;
   cursor: pointer;
   border-bottom: 1px solid #F3F4F6;
@@ -267,14 +282,14 @@ body {
   border: 1.5px solid var(--crimson-red);
   background-color: #FFFFFF;
   color: #000000;
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 600;
-  padding: 11px 20px;
+  padding: 10px 18px;
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: center;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 
 .btn-red-outline:hover {
@@ -307,13 +322,13 @@ body {
 
 /* Secondary Links */
 .link-muted-subtle {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--ink-subtle);
   text-decoration: underline;
   cursor: pointer;
   background: none;
   border: none;
-  margin-top: 14px;
+  margin-top: 10px;
   text-align: center;
   display: inline-block;
   font-family: inherit;
@@ -326,43 +341,43 @@ body {
 
 /* Confirmation Screen (Page 6) */
 .confirmation-name {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #000000;
   text-align: center;
-  margin: 6px 0 2px;
+  margin: 4px 0 2px;
 }
 
 .confirmation-ministry {
-  font-size: 14.5px;
+  font-size: 13.5px;
   color: #4B5563;
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 12px;
 }
 
 .confirmation-card-box {
   width: 100%;
   border: 1.5px solid var(--crimson-red);
   border-radius: 14px;
-  padding: 22px 18px;
+  padding: 16px 14px;
   background-color: #FFFFFF;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 .confirmation-greeting-text {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--purple-dark);
   text-align: center;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 .confirmation-time-text {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   color: #111827;
   text-align: center;
-  margin-bottom: 22px;
+  margin-bottom: 14px;
 }
 
 /* =========================================
@@ -371,12 +386,16 @@ body {
 
 .staff-view-container {
   width: 100%;
-  max-width: 1000px;
-  min-height: 100vh;
+  max-width: 100%;
+  height: 100%;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   background: #FFFFFF;
-  margin: 0 auto;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 /* Staff Top Navigation Bar */
@@ -384,13 +403,14 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 24px;
   background-color: #FFFFFF;
   border-bottom: 1px solid var(--border-light);
   position: sticky;
   top: 0;
   z-index: 45;
   width: 100%;
+  flex-shrink: 0;
 }
 
 .staff-nav-left {
@@ -433,24 +453,30 @@ body {
 
 /* Staff Slide-out Drawer (Page 10) */
 .staff-drawer-overlay {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+  width: 100vw;
+  height: 100vh;
   background: rgba(0, 0, 0, 0.45);
-  z-index: 60;
+  z-index: 100;
   display: flex;
+  margin: 0;
+  padding: 0;
 }
 
 .staff-drawer-menu {
-  width: 240px;
+  width: 250px;
   background: #FFFFFF;
   height: 100%;
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
   animation: slideDrawer 0.2s ease-out;
+  margin: 0;
+  padding: 0;
 }
 
 @keyframes slideDrawer {
@@ -503,17 +529,20 @@ body {
 
 /* Today's Check-ins Content Area */
 .checkins-content-area {
-  padding: 20px 16px 24px;
+  padding: 16px 20px 20px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .checkins-header-row {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .checkins-title-col {
@@ -522,14 +551,14 @@ body {
 }
 
 .checkins-title-text {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #000000;
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .checkins-date-badge {
-  font-size: 13.5px;
+  font-size: 13px;
   color: #4B5563;
   display: flex;
   align-items: center;
@@ -555,13 +584,14 @@ body {
 /* Search bar inline */
 .search-input-box {
   width: 100%;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
   border: 1.5px solid var(--border-light);
   border-radius: 8px;
   padding: 8px 14px;
   font-size: 13.5px;
   font-family: inherit;
   outline: none;
+  flex-shrink: 0;
 }
 
 .search-input-box:focus {
@@ -572,10 +602,13 @@ body {
 .table-scroll-wrapper {
   width: 100%;
   overflow-x: auto;
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   border: 1px solid #E5E7EB;
   border-radius: 6px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
+  flex: 1;
+  min-height: 0;
 }
 
 .checkins-table {
@@ -587,15 +620,20 @@ body {
 
 .checkins-table thead {
   background-color: var(--purple-primary);
+  position: sticky;
+  top: 0;
+  z-index: 5;
 }
 
 .checkins-table th {
   color: #FFFFFF;
   font-weight: 600;
-  padding: 12px 14px;
+  padding: 11px 14px;
   text-align: left;
   white-space: nowrap;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
+  user-select: none;
+  cursor: default;
 }
 
 .checkins-table th:last-child {
@@ -603,7 +641,7 @@ body {
 }
 
 .checkins-table td {
-  padding: 11px 14px;
+  padding: 10px 14px;
   color: #374151;
   border-bottom: 1px solid #E5E7EB;
   border-right: 1px solid #E5E7EB;
@@ -614,7 +652,7 @@ body {
   border-right: none;
 }
 
-.checkins-table tr:hover {
+.checkins-table tbody tr:not(.empty-row):hover {
   background-color: #FAF5FF;
 }
 
@@ -631,30 +669,90 @@ body {
   display: flex;
   justify-content: flex-end;
   margin-top: auto;
-  padding-top: 10px;
+  padding-top: 6px;
+  flex-shrink: 0;
 }
 
 /* Add Member Screen (Page 11 & 12) */
 .add-member-card-wrapper {
-  padding: 16px;
+  flex: 1;
+  width: 100%;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+.add-member-card-wrapper .gradient-card {
+  padding: 20px 22px 18px;
+}
+
+.add-member-card-wrapper .view-heading-bold {
+  font-size: 19px;
+  margin-bottom: 12px;
 }
 
 .add-member-form {
   width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+}
+
+.add-member-form .form-group.full-width,
+.add-member-form .error-notice,
+.add-member-form button[type="submit"] {
+  grid-column: span 2;
+}
+
+.add-member-form .form-label {
+  font-size: 12.5px;
+  margin-bottom: 2px;
+}
+
+.add-member-form .input-pill-red,
+.add-member-form .custom-select-trigger {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 10px;
+  height: 38px;
+  box-sizing: border-box;
+}
+
+.add-member-form .custom-select-trigger {
   display: flex;
-  flex-direction: column;
-  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.add-member-form .custom-select-trigger span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 4px;
+}
+
+@media (max-width: 480px) {
+  .add-member-form {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .add-member-form .form-group.full-width,
+  .add-member-form .error-notice,
+  .add-member-form button[type="submit"] {
+    grid-column: span 1;
+  }
 }
 
 /* PIN Screen */
 .pin-input-field {
-  text-align: center;
-  font-size: 22px;
-  letter-spacing: 6px;
+  text-align: left;
+  font-size: 18px;
+  letter-spacing: 4px;
   font-weight: 700;
+  padding: 10px 16px;
 }
 
 /* Error Notice */
@@ -688,4 +786,61 @@ body {
 @keyframes fadeToast {
   from { opacity: 0; transform: translateY(-8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* Previous Lists Controls */
+.previous-controls-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.segmented-toggle {
+  display: inline-flex;
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  overflow: hidden;
+  background: #F3F4F6;
+}
+
+.toggle-pill-btn {
+  background: transparent;
+  border: none;
+  padding: 5px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #4B5563;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.toggle-pill-btn.active {
+  background: var(--purple-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.date-picker-label-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.date-picker-input {
+  border: 1.5px solid var(--border-light);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 12.5px;
+  font-family: inherit;
+  color: #111827;
+  outline: none;
+  background: #FFFFFF;
+  transition: border-color 0.2s;
+}
+
+.date-picker-input:focus {
+  border-color: var(--purple-primary);
 }
