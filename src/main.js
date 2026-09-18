@@ -46,6 +46,7 @@ let state = {
   previousListDate: new Date(Date.now() - 86400000).toISOString().slice(0, 10),
   previousListMode: "date", // "date" or "all_members"
   previousListRecords: [],
+  previousListAllMembers: [],
   previousSearchQuery: "",
   showPreviousSearch: false,
 
@@ -767,7 +768,7 @@ function renderStaffCheckinsScreen() {
 // -------------------------------------------------------------
 function renderStaffPreviousScreen() {
   const isDate = state.previousListMode === "date";
-  const records = isDate ? state.previousListRecords : state.members;
+  const records = isDate ? state.previousListRecords : state.previousListAllMembers;
   const q = state.previousSearchQuery || "";
 
   return `
@@ -796,7 +797,7 @@ function renderStaffPreviousScreen() {
               <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
               </svg>
-              <span>${isDate ? `Service date: ${esc(state.previousListDate)}` : `All members (${state.members.length})`}</span>
+              <span>${isDate ? `Service date: ${esc(state.previousListDate)}` : `Previous list members (${state.previousListAllMembers.length})`}</span>
             </div>
           </div>
 
@@ -1614,6 +1615,8 @@ function attachEventHandlers() {
       setState({ screen: "staff_previous", drawerOpen: false });
       if (state.previousListMode === "date") {
         loadPreviousRecordsForDate(state.previousListDate);
+      } else {
+        loadPreviousAllMembers();
       }
     };
   }
@@ -1681,6 +1684,7 @@ function attachEventHandlers() {
   if (prevModeMembersBtn) {
     prevModeMembersBtn.onclick = () => {
       setState({ previousListMode: "all_members" });
+      loadPreviousAllMembers();
     };
   }
 
@@ -1708,7 +1712,7 @@ function attachEventHandlers() {
       const tbody = document.getElementById("previousTableBody");
       if (tbody) {
         const isDate = state.previousListMode === "date";
-        const records = isDate ? state.previousListRecords : state.members;
+        const records = isDate ? state.previousListRecords : state.previousListAllMembers;
         tbody.innerHTML = renderCheckinsTableRowsHtml(records, q);
       }
     };
@@ -1931,9 +1935,23 @@ async function loadPreviousRecordsForDate(dateStr) {
   }
 }
 
+async function loadPreviousAllMembers() {
+  try {
+    const records = await convex.query(api.checkins.getPreviousListMembers, {});
+    state.previousListAllMembers = records || [];
+    const tbody = document.getElementById("previousTableBody");
+    if (tbody && state.previousListMode === "all_members") {
+      const q = state.previousSearchQuery || "";
+      tbody.innerHTML = renderCheckinsTableRowsHtml(state.previousListAllMembers, q);
+    }
+  } catch (err) {
+    console.error("Failed to load previous list members:", err);
+  }
+}
+
 function exportPreviousCsv() {
   const isDate = state.previousListMode === "date";
-  let records = isDate ? state.previousListRecords : state.members;
+  let records = isDate ? state.previousListRecords : state.previousListAllMembers;
   const q = (state.previousSearchQuery || "").toLowerCase().trim();
   if (q) {
     records = records.filter((r) => {
@@ -1978,7 +1996,7 @@ function exportPreviousCsv() {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  const filenameTag = isDate ? state.previousListDate : "All_Members";
+  const filenameTag = isDate ? state.previousListDate : "Previous_Lists_Members";
   a.download = `CCC_Adum_${filenameTag}.csv`;
   document.body.appendChild(a);
   a.click();
@@ -2096,7 +2114,18 @@ function initConvex() {
     render();
   });
 
-  // 3. Admin PIN
+  // 3. Live Previous List Members
+  convex.onUpdate(api.checkins.getPreviousListMembers, {}, (records) => {
+    state.previousListAllMembers = records || [];
+    if (state.screen === "staff_previous" && state.previousListMode === "all_members") {
+      const tbody = document.getElementById("previousTableBody");
+      if (tbody) {
+        tbody.innerHTML = renderCheckinsTableRowsHtml(state.previousListAllMembers, state.previousSearchQuery);
+      }
+    }
+  });
+
+  // 4. Admin PIN
   convex.onUpdate(api.settings.getPin, {}, (pin) => {
     if (pin) {
       state.adminPin = pin;

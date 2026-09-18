@@ -30,6 +30,30 @@ export const getForDate = query({
   },
 });
 
+export const getPreviousListMembers = query({
+  args: {},
+  handler: async (ctx) => {
+    const today = getTodayKey();
+    // Fetch all check-ins recorded on dates other than today (historical service dates)
+    const records = await ctx.db
+      .query("checkins")
+      .filter((q) => q.neq(q.field("date"), today))
+      .collect();
+
+    // Deduplicate by phone so unique members across previous lists are shown
+    const map = new Map();
+    records.sort((a, b) => b.timestamp - a.timestamp);
+    for (const r of records) {
+      const key = r.phone || r.name;
+      if (!map.has(key)) {
+        map.set(key, r);
+      }
+    }
+
+    return Array.from(map.values());
+  },
+});
+
 export const getTodayCheckinForPhone = query({
   args: { phone: v.string(), date: v.optional(v.string()) },
   handler: async (ctx, args) => {
