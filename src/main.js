@@ -49,6 +49,10 @@ let state = {
   previousSearchQuery: "",
   showPreviousSearch: false,
 
+  // Staff Members View State
+  membersSearchQuery: "",
+  showMembersSearch: false,
+
   // Staff Add Member Form State
   staffNewName: "",
   staffNewAddress: "",
@@ -110,11 +114,41 @@ function setState(patch) {
   render();
 }
 
+let toastDismissTimer = null;
+let toastRemoveTimer = null;
+
 function showToast(msg) {
-  setState({ toast: msg });
-  setTimeout(() => {
-    setState({ toast: "" });
-  }, 3500);
+  if (!msg) return;
+  state.toast = msg;
+
+  let toastEl = document.getElementById("globalToast");
+  if (!toastEl) {
+    toastEl = document.createElement("div");
+    toastEl.id = "globalToast";
+    toastEl.className = "toast-notice";
+    document.body.appendChild(toastEl);
+  }
+
+  // Clear previous timers if a toast was already active
+  if (toastDismissTimer) clearTimeout(toastDismissTimer);
+  if (toastRemoveTimer) clearTimeout(toastRemoveTimer);
+
+  toastEl.textContent = msg;
+  toastEl.classList.remove("hide");
+  // Force reflow for silky smooth CSS transition
+  void toastEl.offsetWidth;
+  toastEl.classList.add("visible");
+
+  toastDismissTimer = setTimeout(() => {
+    toastEl.classList.remove("visible");
+    toastEl.classList.add("hide");
+    toastRemoveTimer = setTimeout(() => {
+      if (toastEl && toastEl.parentNode && toastEl.classList.contains("hide")) {
+        toastEl.remove();
+      }
+      state.toast = "";
+    }, 320);
+  }, 3200);
 }
 
 // Helpers
@@ -562,6 +596,77 @@ function renderCheckinsTableRowsHtml(checkins, query) {
   return dataRows + emptyRows;
 }
 
+function renderMembersTableRowsHtml(members, query) {
+  const q = (query || "").toLowerCase().trim();
+  const filtered = (members || []).filter((m) => {
+    if (!q) return true;
+    return (
+      (m.name && m.name.toLowerCase().includes(q)) ||
+      (m.phone && m.phone.includes(q)) ||
+      (m.occupation && m.occupation.toLowerCase().includes(q)) ||
+      (m.codeNo && m.codeNo.toLowerCase().includes(q)) ||
+      (m.scdGroup && m.scdGroup.toLowerCase().includes(q)) ||
+      (m.memberStatus && m.memberStatus.toLowerCase().includes(q)) ||
+      (m.ministry && m.ministry.toLowerCase().includes(q)) ||
+      (m.address && m.address.toLowerCase().includes(q))
+    );
+  });
+
+  const displayRowsCount = Math.max(10, filtered.length);
+  const emptyRowsCount = displayRowsCount - filtered.length;
+
+  const dataRows = filtered
+    .map(
+      (row) => `
+    <tr>
+      <td><strong>${esc(row.name)}</strong></td>
+      <td>${esc(row.age || "—")}</td>
+      <td>${esc(formatPhoneDisplay(row.phone))}</td>
+      <td>${esc(row.scdGroup || "—")}</td>
+      <td>${esc(row.occupation || "—")}</td>
+      <td>${esc(row.codeNo || "—")}</td>
+      <td>${esc(row.memberStatus || "Member")}</td>
+      <td>${esc(row.ministry || "—")}</td>
+      <td style="text-align: center;">
+        <button 
+          type="button" 
+          class="btn-remove-member" 
+          data-remove-phone="${esc(row.phone)}" 
+          data-remove-name="${esc(row.name)}" 
+          title="Remove ${esc(row.name)}"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2M10 11v6M14 11v6"/>
+          </svg>
+          <span style="margin-left: 3px; font-size: 11px; font-weight: 600;">Remove</span>
+        </button>
+      </td>
+    </tr>
+  `
+    )
+    .join("");
+
+  const emptyRows = Array.from({ length: emptyRowsCount })
+    .map(
+      () => `
+    <tr class="empty-row">
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+    </tr>
+  `
+    )
+    .join("");
+
+  return dataRows + emptyRows;
+}
+
 // -------------------------------------------------------------
 // SCREEN 6: Staff Check-ins Table (Pages 8, 9, 10)
 // -------------------------------------------------------------
@@ -782,6 +887,102 @@ function renderStaffPreviousScreen() {
 }
 
 // -------------------------------------------------------------
+// SCREEN 6C: Staff Members Directory & Management
+// -------------------------------------------------------------
+function renderStaffMembersScreen() {
+  const members = state.members || [];
+  const q = state.membersSearchQuery || "";
+
+  return `
+    <div class="staff-view-container">
+      <!-- Staff Top Navigation Bar -->
+      <div class="staff-top-nav">
+        <div class="staff-nav-left">
+          <img src="/ccc-logo.png" alt="Logo" class="staff-logo-icon">
+          <div class="staff-nav-brand">
+            Calvary Charismatic<br>Center, Adum
+          </div>
+        </div>
+        <button id="hamburgerBtn" class="staff-hamburger-btn" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <!-- Main Content Area -->
+      <div class="checkins-content-area">
+        <div class="checkins-header-row">
+          <div class="checkins-title-col">
+            <h2 class="checkins-title-text">Members</h2>
+            <div class="checkins-date-badge">
+              <svg width="15" height="15" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+              </svg>
+              <span>${members.length} registered members</span>
+            </div>
+          </div>
+
+          <button id="toggleMembersSearchBtn" class="search-toggle-btn" title="Search members">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+
+        ${
+          state.showMembersSearch
+            ? `
+          <input 
+            type="text" 
+            id="membersSearchInput" 
+            class="search-input-box" 
+            placeholder="Search by name, phone, occupation, group, status..." 
+            value="${esc(state.membersSearchQuery)}"
+            autofocus
+          />
+        `
+            : ""
+        }
+
+        <!-- Horizontally & Vertically Scrollable 9-column Table -->
+        <div class="table-scroll-wrapper">
+          <table class="checkins-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Phone No.</th>
+                <th>SCD Group</th>
+                <th>Occupation</th>
+                <th>Code No.</th>
+                <th>Member Status</th>
+                <th>Ministry</th>
+                <th style="text-align: center; width: 88px;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="membersTableBody">
+              ${renderMembersTableRowsHtml(members, q)}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Export CSV Button (Bottom right) -->
+        <div class="table-footer-row">
+          <button id="exportMembersCsvBtn" class="btn-purple-solid">
+            Export list (CSV)
+          </button>
+        </div>
+      </div>
+
+      <!-- Slide-out Drawer (Page 10) -->
+      ${renderStaffDrawer()}
+    </div>
+  `;
+}
+
+// -------------------------------------------------------------
 // SCREEN 7: Staff Drawer Menu (Page 10)
 // -------------------------------------------------------------
 function renderStaffDrawer() {
@@ -807,6 +1008,13 @@ function renderStaffDrawer() {
             class="drawer-menu-item ${state.screen === "staff_previous" ? "active" : ""}"
           >
             Previous lists
+          </button>
+          <button 
+            type="button" 
+            id="drawerMembersBtn" 
+            class="drawer-menu-item ${state.screen === "staff_members" ? "active" : ""}"
+          >
+            Members
           </button>
           <button 
             type="button" 
@@ -1038,6 +1246,9 @@ function render() {
     case "staff_previous":
       contentHtml = renderStaffPreviousScreen();
       break;
+    case "staff_members":
+      contentHtml = renderStaffMembersScreen();
+      break;
     case "staff_add_member":
       contentHtml = renderStaffAddMemberScreen();
       break;
@@ -1045,13 +1256,9 @@ function render() {
       contentHtml = renderEntryScreen();
   }
 
-  const isStaff =
-    state.screen === "staff_checkins" ||
-    state.screen === "staff_previous" ||
-    state.screen === "staff_add_member";
+  const isStaff = state.screen.startsWith("staff_");
   root.innerHTML = `
     <div class="app-shell ${isStaff ? "staff-mode" : "kiosk-mode"}">
-      ${state.toast ? `<div class="toast-notice">${esc(state.toast)}</div>` : ""}
       ${contentHtml}
     </div>
   `;
@@ -1411,6 +1618,13 @@ function attachEventHandlers() {
     };
   }
 
+  const drawerMembersBtn = document.getElementById("drawerMembersBtn");
+  if (drawerMembersBtn) {
+    drawerMembersBtn.onclick = () => {
+      setState({ screen: "staff_members", drawerOpen: false });
+    };
+  }
+
   const drawerAddMemberBtn = document.getElementById("drawerAddMemberBtn");
   if (drawerAddMemberBtn) {
     drawerAddMemberBtn.onclick = () => {
@@ -1507,6 +1721,34 @@ function attachEventHandlers() {
     };
   }
 
+  // Members View Controls
+  const toggleMembersSearchBtn = document.getElementById("toggleMembersSearchBtn");
+  if (toggleMembersSearchBtn) {
+    toggleMembersSearchBtn.onclick = () => {
+      setState({ showMembersSearch: !state.showMembersSearch, membersSearchQuery: "" });
+    };
+  }
+
+  const membersSearchInput = document.getElementById("membersSearchInput");
+  if (membersSearchInput) {
+    membersSearchInput.oninput = (e) => {
+      const q = e.target.value;
+      state.membersSearchQuery = q;
+      const tbody = document.getElementById("membersTableBody");
+      if (tbody) {
+        tbody.innerHTML = renderMembersTableRowsHtml(state.members, q);
+        attachRemoveMemberHandlers();
+      }
+    };
+  }
+
+  const exportMembersCsvBtn = document.getElementById("exportMembersCsvBtn");
+  if (exportMembersCsvBtn) {
+    exportMembersCsvBtn.onclick = () => {
+      exportMembersCsv();
+    };
+  }
+
   // 7. Staff Add New Member Form (Pages 11 & 12)
   const staffAddMemberForm = document.getElementById("staffAddMemberForm");
   if (staffAddMemberForm) {
@@ -1548,7 +1790,7 @@ function attachEventHandlers() {
 
         showToast(`Added ${name} and checked in!`);
         setState({
-          screen: "staff_checkins",
+          screen: "staff_members",
           staffNewName: "",
           staffNewAddress: "",
           staffNewOccupation: "",
@@ -1604,6 +1846,9 @@ function attachEventHandlers() {
       };
     });
   }
+
+  // Attach member remove action listeners
+  attachRemoveMemberHandlers();
 
   // Close dropdowns on outside click
   window.onclick = (e) => {
@@ -1740,6 +1985,96 @@ function exportPreviousCsv() {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast("Previous list exported to CSV!");
+}
+
+function attachRemoveMemberHandlers() {
+  const table = document.getElementById("membersTableBody");
+  if (!table) return;
+
+  table.onclick = async (e) => {
+    const btn = e.target.closest(".btn-remove-member");
+    if (!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    const phone = btn.getAttribute("data-remove-phone");
+    const name = btn.getAttribute("data-remove-name") || "this member";
+    if (!phone) return;
+
+    // Direct optimistic UI removal - instantaneous feedback
+    const prevMembers = [...state.members];
+    state.members = state.members.filter((m) => m.phone !== phone);
+
+    table.innerHTML = renderMembersTableRowsHtml(state.members, state.membersSearchQuery);
+    showToast(`Removed ${name} from members.`);
+
+    try {
+      await convex.mutation(api.members.remove, { phone });
+    } catch (err) {
+      console.error("Failed to remove member:", err);
+      try {
+        const clean = phone.replace(/\D/g, "");
+        if (clean && clean !== phone) {
+          await convex.mutation(api.members.remove, { phone: clean });
+          return;
+        }
+      } catch (e2) {}
+      // Revert optimistic update only if mutation completely failed
+      state.members = prevMembers;
+      table.innerHTML = renderMembersTableRowsHtml(state.members, state.membersSearchQuery);
+      showToast(`Failed to remove ${name}.`);
+    }
+  };
+}
+
+function exportMembersCsv() {
+  let list = state.members || [];
+  const q = (state.membersSearchQuery || "").toLowerCase().trim();
+  if (q) {
+    list = list.filter((m) => {
+      const text = `${m.name || ""} ${m.phone || ""} ${m.occupation || ""} ${m.scdGroup || ""} ${m.ministry || ""} ${m.codeNo || ""} ${m.memberStatus || ""}`.toLowerCase();
+      return text.includes(q);
+    });
+  }
+
+  if (!list.length) {
+    showToast("No members to export.");
+    return;
+  }
+
+  const headers = [
+    "Name",
+    "Age",
+    "Phone No.",
+    "SCD Group",
+    "Occupation",
+    "Code No.",
+    "Member Status",
+    "Ministry",
+  ];
+
+  const rows = list.map((m) => [
+    `"${(m.name || "").replace(/"/g, '""')}"`,
+    `"${(m.age || "").replace(/"/g, '""')}"`,
+    `"${m.phone || ""}"`,
+    `"${(m.scdGroup || "").replace(/"/g, '""')}"`,
+    `"${(m.occupation || "").replace(/"/g, '""')}"`,
+    `"${(m.codeNo || "").replace(/"/g, '""')}"`,
+    `"${(m.memberStatus || "").replace(/"/g, '""')}"`,
+    `"${(m.ministry || "").replace(/"/g, '""')}"`,
+  ]);
+
+  const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\r\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `CCC_Adum_Members_${getTodayKey()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast("Members list exported to CSV!");
 }
 
 // -------------------------------------------------------------

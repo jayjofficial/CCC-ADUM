@@ -764,12 +764,12 @@ html, body {
   font-weight: 500;
 }
 
-/* Toast Message */
+/* Toast Message - Smooth, Non-Glitchy */
 .toast-notice {
   position: fixed;
   top: 24px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -12px);
   background-color: #10B981;
   color: #FFFFFF;
   padding: 12px 24px;
@@ -777,15 +777,24 @@ html, body {
   font-size: 14px;
   font-weight: 600;
   text-align: center;
-  z-index: 1000;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-  animation: fadeToast 0.25s ease-out;
+  z-index: 9999;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   max-width: 90vw;
 }
 
-@keyframes fadeToast {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+.toast-notice.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+
+.toast-notice.hide {
+  opacity: 0;
+  transform: translate(-50%, -10px);
+  pointer-events: none;
 }
 
 /* Previous Lists Controls */
@@ -843,4 +852,30 @@ html, body {
 
 .date-picker-input:focus {
   border-color: var(--purple-primary);
+}
+
+/* Remove Member Button */
+.btn-remove-member {
+  background: transparent;
+  border: 1px solid #FCA5A5;
+  color: #DC2626;
+  border-radius: 6px;
+  padding: 3px 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.btn-remove-member:hover {
+  background-color: #FEE2E2;
+  border-color: #EF4444;
+  color: #B91C1C;
+}
+
+.btn-remove-member svg,
+.btn-remove-member span {
+  pointer-events: none;
 }
